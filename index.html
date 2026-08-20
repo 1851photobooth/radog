@@ -202,6 +202,29 @@ label.fld input:focus,label.fld select:focus{outline:2px solid var(--orange);out
 .slidecard .fr{text-align:center;font-size:11px;font-weight:700;background:rgba(255,255,255,.72);border-radius:7px;padding:3px;}
 .newtag{position:absolute;top:8px;right:8px;z-index:4;background:#E5432E;color:#fff;font-size:9.5px;
   font-weight:700;padding:2px 8px;border-radius:99px;box-shadow:0 2px 6px rgba(0,0,0,.35);}
+/* 稀有卡：卡外多一圈旋轉的金色光暈，跟普通卡明顯不同 */
+.slidewrap.rare2::before{content:"";position:absolute;inset:-20px;border-radius:28px;z-index:0;
+  pointer-events:none;filter:blur(7px);
+  background:conic-gradient(from 0deg,transparent 0deg,rgba(255,216,138,.95) 66deg,
+    transparent 148deg,transparent 182deg,rgba(255,216,138,.95) 248deg,transparent 330deg);
+  animation:rareSpin 2.4s linear infinite;}
+@keyframes rareSpin{to{transform:rotate(360deg);}}
+.slidewrap.rare2 .slidecard{box-shadow:0 0 0 3px rgba(227,188,85,.95),0 0 42px rgba(255,214,130,.6),
+  0 18px 40px rgba(0,0,0,.5);}
+.slidewrap.rare2 .fr{background:linear-gradient(90deg,#E3BC55,#FFF3CE,#E3BC55);
+  color:#4A3818;letter-spacing:3px;
+  animation:rarePop .55s cubic-bezier(.2,1.6,.4,1) .35s both;}
+@keyframes rarePop{0%{transform:scale(.35);opacity:0;}100%{transform:scale(1);opacity:1;}}
+
+/* 散步結算 */
+.wsum{display:flex;gap:9px;overflow-x:auto;padding:10px 2px 4px;}
+.wsum .fpface{width:62px;aspect-ratio:63/88;flex:none;}
+.wsum .fpface .dc-intro{display:none;}
+.wstats{display:flex;gap:10px;margin:12px 0 4px;}
+.wstats div{flex:1;text-align:center;background:var(--orange-p);border-radius:12px;padding:9px 4px;}
+.wstats b{display:block;font-family:'Huninn',sans-serif;font-size:19px;font-weight:400;color:var(--orange-d);}
+.wstats small{font-size:10.5px;color:var(--soft);}
+
 .burst{position:absolute;inset:-34%;border-radius:50%;opacity:0;pointer-events:none;z-index:2;}
 .burst.go{animation:burst .8s ease-out;}
 @keyframes burst{0%{opacity:.9;transform:scale(.35);}100%{opacity:0;transform:scale(1.35);}}
@@ -442,6 +465,20 @@ label.fld input:focus,label.fld select:focus{outline:2px solid var(--orange);out
 .encrow{display:flex;gap:9px;overflow-x:auto;padding:10px 2px 2px;}
 .encrow .fpface{width:58px;aspect-ratio:63/88;cursor:pointer;}
 .encrow .fpface .dc-intro{display:none;}
+
+/* 留下足跡＝浮在地圖上的主要動作，看到地圖就知道要做什麼 */
+.mapzone{position:relative;}
+.fpfab{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:400;
+  display:flex;align-items:center;gap:7px;white-space:nowrap;cursor:pointer;
+  background:linear-gradient(150deg,#F5821F,#D2670C);color:#fff;
+  font-size:14px;font-weight:700;padding:12px 20px;border-radius:99px;
+  box-shadow:0 8px 22px rgba(120,60,10,.45),0 0 0 3px rgba(255,255,255,.85);
+  transition:transform .16s ease;}
+.fpfab:active{transform:translateX(-50%) scale(.95);}
+.fpfab svg{width:18px;height:18px;}
+.fpfab .cnt{font-size:11px;font-weight:700;background:rgba(255,255,255,.25);
+  border-radius:99px;padding:1px 8px;letter-spacing:.5px;}
+.fpfab.off{background:#9C8C77;box-shadow:0 4px 12px rgba(0,0,0,.25);pointer-events:none;}
 
 /* 往下還有東西：地圖太高，不提示會以為頁面到底了 */
 .scrollhint{display:flex;align-items:center;justify-content:center;gap:6px;
@@ -726,33 +763,35 @@ p.ddi{font-size:12.5px;color:var(--ink2);background:#FAF6EE;border-radius:11px;
     <div class="box">
       <h3><svg class="ic" viewBox="0 0 24 24"><path d="M5 20l3-9 4 3 3-6 4 12"/></svg>散步記錄</h3>
       <button class="btn pri blk" id="btnWalk">開始散步</button>
-      <p style="font-size:12px;color:var(--soft);margin-top:8px;" id="walkMsg">散步時會保持螢幕恆亮並累積里程，經過的足跡卡會自動被撿起。</p>
+      <p style="font-size:12px;color:var(--soft);margin-top:8px;" id="walkMsg">散步時會保持螢幕恆亮並累積里程，沿路經過的足跡卡會自動撿起，結束時一次結算。</p>
       <div class="walkstat">
         <div><b id="wKm">0</b><small>公里</small></div>
         <div><b id="wCnt">0</b><small>次數</small></div>
         <div><b id="wHr">0</b><small>小時</small></div>
         <div><b id="wStreak">0</b><small>連續天</small></div>
       </div>
-      <div class="pv"><b>正式版</b><span>散步距離與時間由 <em>GPS 實際記錄</em>，路線會同步畫進日記地圖。測試版是手動模擬。</span></div>
     </div>
 
-    <div class="box" style="margin-top:14px;">
-      <h3><svg class="ic" viewBox="0 0 24 24"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>留下足跡</h3>
-      <p style="font-size:12.5px;color:var(--ink2);margin-bottom:9px;">散步拍一張，留下一張足跡在原地。</p>
-      <label class="btn pri blk" id="btnLeave">拍照留下足跡
+    <div class="mapzone" style="margin-top:12px;">
+      <div class="mapwrap" id="mapWrap"></div>
+      <label class="fpfab" id="btnLeave">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        拍照留下足跡<span class="cnt"><b id="fpLeft">0</b>/5</span>
         <input type="file" id="fpPhoto" accept="image/*" capture="environment" class="hidden"></label>
-      <p style="font-size:12px;color:var(--soft);margin-top:11px;">今天留下的足跡（<b id="fpLeft">0</b>/5）</p>
-      <div id="myFpList"></div>
-      <div class="pv"><b>正式版</b><span>足跡會留在你<em>當下的真實 GPS 位置</em>，<em>12 小時後會消失</em>；別人走到 <em>50 公尺內</em>就可以撿起。</span></div>
     </div>
-
-    <div class="mapwrap" id="mapWrap" style="margin-top:14px;"></div>
     <div class="maplegend">
       <span><svg class="ic fill" viewBox="0 0 24 24" style="color:#3A84E8;"><circle cx="12" cy="12" r="6"/></svg>你的位置</span>
       <span><svg class="ic fill" viewBox="0 0 24 24" style="color:#F5821F;"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"/></svg>你的足跡</span>
       <span><svg class="ic fill" viewBox="0 0 24 24" style="color:#8A9A5B;"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"/></svg>附近的狗（走過去才撿得到）</span>
     </div>
-    <div class="scrollhint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>往下看這次散步的相遇紀錄</div>
+    <div class="scrollhint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>往下看今天留下的足跡與相遇紀錄</div>
+
+    <div class="box" style="margin-top:14px;">
+      <h3><svg class="ic" viewBox="0 0 24 24"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>今天留下的足跡</h3>
+      <p style="font-size:12px;color:var(--soft);">一天最多 5 張，留下的照片就在下面。</p>
+      <div id="myFpList"></div>
+      <div class="pv"><b>正式版</b><span>足跡會留在你<em>當下的真實 GPS 位置</em>，<em>12 小時後會消失</em>；別人走到 <em>50 公尺內</em>就可以撿起。</span></div>
+    </div>
 
     <div class="box" style="margin-top:14px;">
       <h3><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>相遇紀錄</h3>
@@ -1696,8 +1735,16 @@ function openPack(paid){
   if(!paid){ if(S.packDate===today()){ toast("今天的免費卡包已經開過了"); return; } S.packDate=today(); }
   /* 第一包＝固定品種（打散順序）；之後才是正常機率抽卡 */
   if(S.packs===0){
-    const pool=CFG.FIRST_PACK.slice().sort(()=>Math.random()-0.5);
-    pulled=Array.from({length:DAILY_CARDS},(_,i)=>pullFirst(CFG.FIRST_PACK.indexOf(pool[i])));
+    /* 新手包：4 張普卡（有實拍照片那批）＋ 最後一張稀有壓軸 */
+    const pool=CFG.FIRST_PACK.slice().sort(()=>Math.random()-0.5).slice(0,DAILY_CARDS-1);
+    const commons=pool.map(sl=>{
+      let bi=BREEDS.findIndex(x=>x[1]===sl); if(bi<0) bi=0;
+      return {idx:bi,name:BREEDS[bi][0],slug:BREEDS[bi][1],rar:BREEDS[bi][2]};
+    });
+    const rarePool=BREEDS.map((b,i)=>[b,i]).filter(x=>x[0][2]===2);
+    const pk=rarePool[Math.floor(Math.random()*rarePool.length)];
+    commons.push({idx:pk[1],name:pk[0][0],slug:pk[0][1],rar:2});
+    pulled=commons;
   } else {
     pulled=Array.from({length:DAILY_CARDS},pullOne);
   }
@@ -1751,7 +1798,7 @@ function showSlide(){
     +'<div class="fn">'+p.name+'</div><div class="fp" id="fp">'+svg("dog")+'</div>'
     +'<div class="fr">'+R_NAME[p.rar]+'</div>'
     +'<div class="burst" id="burst"></div>';
-  wrap.innerHTML=""; wrap.appendChild(card);
+  wrap.innerHTML=""; wrap.classList.toggle("rare2", p.rar===2); wrap.appendChild(card);
   const pc=PIC.get(p.slug), t0=$("fp");
   if(pc){ if(t0) t0.innerHTML=PIC.img(pc,p.slug); }
   else { if(t0) t0.innerHTML='<span class="ldbox loadingph"></span>';
@@ -1774,6 +1821,7 @@ function showSlide(){
       }
       if(p.rar===3){ $("flash").classList.add("go"); $("rays").classList.add("on");
         setTimeout(()=>$("flash").classList.remove("go"),500); confetti(34); }
+      else if(p.rar===2){ $("rays").classList.add("on"); confetti(20); }
       else confetti(14);
     }
   },560);
@@ -2187,7 +2235,7 @@ function mkMyFpCard(f){
 function renderLeave(){
   const used=myFpToday(), left=Math.max(0,FP_PER_DAY-used);
   const n=$("fpLeft"); if(n) n.textContent=used;
-  const b=$("btnLeave"); if(b) b.style.opacity=left?"":"0.45";
+  const b=$("btnLeave"); if(b) b.classList.toggle("off", left<=0);
   const box=$("myFpList"); if(!box) return;
   /* 今天留下的那幾張，用照片本身直接陳列在「今天留下的足跡（n/5）」下面 */
   const mine=S.myFp.filter(f=>f.date===today());
@@ -2205,9 +2253,17 @@ function renderLeave(){
 }
 $("fpPhoto").onchange=e=>{
   const file=e.target.files[0]; e.target.value="";
-  if(!file) return;
-  if(myFpToday()>=FP_PER_DAY){ toast("今天的 "+FP_PER_DAY+" 個足跡已經留完了"); return; }
-  shrink(file,1000,url=>askLeaveFp(url));
+  if(!file){ if(coachWaitShot) coachRetryShot(); return; }
+  if(myFpToday()>=FP_PER_DAY && !coachWaitShot){ toast("今天的 "+FP_PER_DAY+" 個足跡已經留完了"); return; }
+  shrink(file,1000,url=>{
+    if(coachWaitShot){          /* 教學中：直接走完整流程，讓人真的做過一次 */
+      coachWaitShot=false; coachWalkPhoto=url;
+      doLeaveFp(url,"我們的第一張足跡");
+      setTimeout(()=>{ if(coachActive) coachNext(); },3400);
+      return;
+    }
+    askLeaveFp(url);
+  });
 };
 function askLeaveFp(url){
   const prev=mkMyFpCard({place:"你現在的位置",t:new Date().toTimeString().slice(0,5),photo:url});
@@ -2421,10 +2477,45 @@ function pickUpFootprint(){
   recordColl(bi, f);
   S.pt+=3; save();
   renderEnc(); drawMap(); renderDex(); renderBadges(); renderCard();
+  if(watchId!==null){     /* 散步中：先收著不打斷，結束時一次結算 */
+    walkPicked.push({card:f,isNew:isNew,bi:bi});
+    toast("撿到 "+f.name+"（"+f.breed+"）");
+    return;
+  }
   spotlightFp(f,isNew,3,()=>{
     if(isNew && bi>=0){ switchTab("dex"); setTimeout(()=>flashDex([bi]),260); }
   });
 }
+/* 一次散步的結算：這趟總共遇到誰、解鎖了什麼 */
+function walkSummary(km,hr){
+  const got=walkPicked.slice(); walkPicked=[];
+  const newIdx=got.filter(g=>g.isNew&&g.bi>=0).map(g=>g.bi);
+  let h='<h3>這趟散步結束了</h3>'
+    +'<div class="wstats">'
+      +'<div><b>'+km.toFixed(2)+'</b><small>公里</small></div>'
+      +'<div><b>'+Math.round(hr*60)+'</b><small>分鐘</small></div>'
+      +'<div><b>'+got.length+'</b><small>遇到的狗</small></div>'
+      +'<div><b>'+newIdx.length+'</b><small>新品種</small></div>'
+    +'</div>';
+  if(got.length){
+    h+='<p style="font-size:12.5px;color:var(--ink2);margin-top:10px;">這趟路上遇到的狗：</p>'
+      +'<div class="wsum" id="wsumRow"></div>';
+  } else {
+    h+='<p style="font-size:12.5px;color:var(--soft);margin-top:10px;">這趟沒有遇到別人的足跡。多走幾條沒走過的路，遇到的機會會高很多。</p>';
+  }
+  modal(h, newIdx.length
+    ? [["關閉",null],["看看圖鑑",()=>{ switchTab("dex"); setTimeout(()=>flashDex(newIdx),260); },1]]
+    : [["知道了",null,1]]);
+  const row=$("wsumRow");
+  if(row) got.slice().reverse().forEach(g=>{
+    const d=document.createElement("div"); d.className="fpface"; d.id="ws"+g.card.id;
+    d.innerHTML=fpCardInner(g.card,null);
+    d.onclick=()=>openFpDetail(g.card);
+    row.appendChild(d);
+    fpPhoto(g.card,u=>{ const t=$("ws"+g.card.id); if(t) t.innerHTML=fpCardInner(g.card,u); },3);
+  });
+}
+let walkPicked=[];
 let encTimer=null;
 function startEncounters(){
   if(encTimer) return;
@@ -2633,11 +2724,11 @@ $("btnWalk").onclick=()=>{
   if(watchId!==null){ stopWalk(); return; }
   modal('<h3>開始散步</h3><p>會使用手機定位累積里程，並讓螢幕保持恆亮。</p>'
     +'<p style="font-size:12.5px;color:var(--soft);">資料只存在這台裝置。瀏覽器無法在背景定位，請保持畫面開啟。</p>'
-    +'<div class="note">散步期間每 5 分鐘會自動撿到附近的一張足跡卡。</div>',
+    +'<div class="note">散步期間會自動撿起沿路的足跡卡，結束時一次結算這趟遇到了誰。</div>',
     [["取消",null],["同意並開始",startWalk,1]]);
 };
 async function startWalk(){
-  wKm=0; lastFix=null; wStart=Date.now();
+  wKm=0; lastFix=null; wStart=Date.now(); walkPicked=[];
   const awake=await keepAwake();
   if(navigator.geolocation && window.isSecureContext){
     watchId=navigator.geolocation.watchPosition(p=>{
@@ -2664,13 +2755,15 @@ function stopWalk(){
   const hr=(Date.now()-wStart)/3600000;
   if(wKm>0.01){ S.walks.km+=wKm; S.walks.cnt++; S.walks.hr+=hr;
     if(!S.walks.dates.includes(today())) S.walks.dates.push(today());
-    S.pt+=Math.round(wKm*3); save(); toast("記錄了 "+wKm.toFixed(2)+" 公里"); }
+    S.pt+=Math.round(wKm*3); }
   else { S.walks.cnt++; S.walks.hr+=hr;
-    if(!S.walks.dates.includes(today())) S.walks.dates.push(today()); save(); }
+    if(!S.walks.dates.includes(today())) S.walks.dates.push(today()); }
+  save();
   $("btnWalk").textContent="開始散步";
   $("btnWalk").classList.add("pri");
-  $("walkMsg").textContent="散步時會保持螢幕恆亮並累積里程，經過的足跡卡會自動被撿起。";
+  $("walkMsg").textContent="散步時會保持螢幕恆亮並累積里程，沿路經過的足跡卡會自動撿起，結束時一次結算。";
   renderAll();
+  walkSummary(wKm,hr);            /* 一次結算：這趟走多遠、遇到誰 */
 }
 
 /* ---------- 徽章 ---------- */
@@ -2861,26 +2954,34 @@ const STEPS=[
  {tab:"pack", target:"#btnFree", title:"每天可以開一包卡包", text:"公測版每天 5 張免費。卡片來自其他飼主的狗。",
   btn:"開卡包", act:()=>{ if(S.packDate!==today()) openPack(false); else { toast("今天已開過，直接看圖鑑"); coachNext(); } }, hold:true},
  {tab:"dex", target:"#dexGrid", title:"抽到的都收進圖鑑", text:"100 種品種，還沒收集的會是模糊的剪影。集滿是長期目標。"},
- {tab:"trail", target:"#mapWrap", title:"整座城市都可以找狗", text:"你的足跡會留在地圖上，別人走過就能撿走。而你散步時也會自動撿到附近的狗。"},
- {tab:"trail", target:"#mapWrap", title:"你會撿到別人的足跡", demo:true, demoSlug:"pembroke",
-  demoName:"波妞", demoBreed:"柯基", demoNote:"追鴿子失敗，但很開心",
-  text:"散步經過別人留下的地方，就會像這樣撿到一張足跡卡（真實柯基犬照片示範）：",
+ {tab:"trail", target:"#mapWrap", title:"整座城市都可以找狗", text:"你的足跡會留在地圖上，別人走過就能撿走。而你散步時也會自動撿到 50 公尺內的狗。"},
+ {tab:"trail", target:"#btnWalk", title:"散步就是這個 App 的玩法",
+  text:"按下去之後，手機會用 GPS 記錄你走了多遠，沿路經過的足跡卡<b>全部自動撿起來</b>，不用一直看螢幕。<br><br>走完按「結束散步」，會一次結算這趟遇到了誰、解鎖了哪些新品種。",
+  btn:"懂了"},
+ {tab:"trail", target:"#btnLeave", title:"現在，真的拍一張看看",
+  text:"這是散步時最重要的動作：拍下牠現在的樣子，留一張足跡在原地。<br><br>這張照片會<b>直接換到牠的卡面上</b>，也會成為今天日記的那一張。走過這裡的人撿到的，就是這張卡。",
+  btn:"拍照留下足跡", act:()=>coachTakeShot(), hold:true},
+ {tab:"trail", target:"#myFpList", title:"這張足跡已經留在地圖上了",
+  text:"剛剛那張照片已經放到你現在的位置，也記進今天的足跡（1/5）。一天最多可以留 5 張。",
+  btn:"接著呢？"},
+ {tab:"trail", target:"#mapWrap", title:"你也會撿到別人的足跡", demo:true, demoSlug:"australian/shepherd",
+  demoName:"可可", demoBreed:"澳洲牧羊犬", demoNote:"在草地上追自己的尾巴",
+  text:"散步經過別人留下的地方，就會像這樣撿到一張足跡卡。這隻是<b style=\'color:#C05F0A;\'>少見</b>品種：",
   btn:"太好了，收下", onNext:()=>{
-    const idx=breedIdx("柯基");
-    if(idx>=0 && !S.owned[idx]){ S.owned[idx]=true; S.pt+=3; }
+    const idx=breedIdx("澳洲牧羊犬");
+    if(idx>=0 && !S.owned[idx]){ S.owned[idx]=true; S.pt+=3;
+      recordColl(idx,{name:"可可",breed:"澳洲牧羊犬",slug:"australian/shepherd",
+        note:"在草地上追自己的尾巴",place:"河濱公園",t:"17:05",photo:PIC.get("australian/shepherd")||""}); }
     applyPinnedDexPics(); save();
     coachCorgiIdx=idx;
   }},
  {tab:"dex", target:"#dexGrid", flashIdx:()=>coachCorgiIdx, pre:()=>{ dexFilter="all";
    document.querySelectorAll(".dexbar button").forEach(x=>x.classList.toggle("on",x.dataset.f==="all"));
    renderDex(); },
-  title:"撿到的足跡也會立刻收進圖鑑", text:"剛剛撿到的柯基，已經自動收進圖鑑裡了，來看看吧：", btn:"看到了"},
- {tab:"trail", target:"#mapWrap", dynamic:true, title:"你的足跡也會被別人撿到",
-  text:"你散步時拍的那張照片，會直接換到你狗狗的卡面上。別人撿到時看到的，就是這張卡：",
-  btn:"了解了", onNext:()=>{ applyCoachWalkPhoto(); }},
+  title:"撿到的足跡也會立刻收進圖鑑", text:"剛剛撿到的澳洲牧羊犬，已經自動收進圖鑑了。點開任一品種，還能看到你在那個品種底下收過的每一張卡。", btn:"看到了"},
  {tab:"diary", target:"#cal", pre:()=>renderDiary(),
-  title:"這張照片也會留在日記裡",
-  text:"剛剛那張散步照片，已經自動存進今天的日期格了。每天一張，累積成牠的一整年。日記還會記錄你們一起去過的地方——每一次散步的路線都會點亮地圖，牠這一生走過哪裡、看過什麼風景，都會完整留在這裡。",
+  title:"你拍的那張，也留在日記裡了",
+  text:"剛剛你拍的那張照片，已經自動存進今天的日期格了。每天一張，累積成牠的一整年。日記還會記錄你們一起去過的地方——每一次散步的路線都會點亮地圖，牠這一生走過哪裡、看過什麼風景，都會完整留在這裡。",
   btn:"我知道了"},
  {tab:"badge", target:"#badgeWrap", title:"散步和收藏都會累積成就",
   text:"熬夜狗狗、海灘狗狗、長跑狗狗、社交狗狗…每一枚章都是一件不同的事，章面上直接印著要達成的數字。<br><br>"
@@ -2891,6 +2992,25 @@ const STEPS=[
 ];
 /* 導覽用：把「散步時拍的那張照片」實際套用到主卡＋今天的日記 */
 let coachWalkPhoto="";
+let coachWaitShot=false;
+/* 教學中請使用者真的拍一張：叫出相機，取消的話把導覽叫回來 */
+function coachTakeShot(){
+  coachWaitShot=true;
+  $("fpPhoto").click();
+  setTimeout(()=>{
+    if(coachWaitShot && coachActive) coachRetryShot();
+  },60000);                       /* 保險：一分鐘沒動作就把導覽叫回來 */
+}
+function coachRetryShot(){
+  if(!coachActive) return;
+  coachWaitShot=false;
+  $("coach").classList.add("on");
+  setTimeout(()=>placeCoach(STEPS[coachIdx]),120);
+  toast("拍一張才能繼續喔");
+}
+window.addEventListener("focus",()=>{
+  if(coachWaitShot) setTimeout(()=>{ if(coachWaitShot) coachRetryShot(); },1200);
+});
 function applyCoachWalkPhoto(){
   if(!coachWalkPhoto) return;
   const k=today();
