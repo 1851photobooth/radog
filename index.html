@@ -325,7 +325,7 @@ label.fld input:focus,label.fld select:focus{outline:2px solid var(--orange);out
 .myfprow .fpface{cursor:pointer;}
 
 /* trail */
-.mapwrap{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--line);
+.mapwrap{position:relative;z-index:0;isolation:isolate;border-radius:16px;overflow:hidden;border:1px solid var(--line);
   background:#EAE6DA;box-shadow:0 3px 12px rgba(80,60,30,.1);}
 .mapwrap svg{display:block;width:100%;height:auto;}
 .mapwrap.live{height:min(56vh,400px);background:#EAE6DA;}
@@ -2753,9 +2753,13 @@ function coachShow(){
 function placeCoach(st){
   const el=document.querySelector(st.target);
   const vw=window.innerWidth, vh=window.innerHeight;
-  $("coachSvg").setAttribute("viewBox","0 0 "+vw+" "+vh);
-  $("mfull").setAttribute("width",vw); $("mfull").setAttribute("height",vh);
-  $("mcover").setAttribute("width",vw); $("mcover").setAttribute("height",vh);
+  const _cr=$("coachSvg").getBoundingClientRect();
+  const svw=_cr.width||vw, svh=_cr.height||vh;
+  $("coachSvg").setAttribute("viewBox","0 0 "+svw+" "+svh);
+  $("mfull").setAttribute("x",-svw); $("mfull").setAttribute("y",-svh);
+  $("mfull").setAttribute("width",svw*3); $("mfull").setAttribute("height",svh*3);
+  $("mcover").setAttribute("x",-svw); $("mcover").setAttribute("y",-svh);
+  $("mcover").setAttribute("width",svw*3); $("mcover").setAttribute("height",svh*3);
   let r={left:vw/2-120,top:vh/2-30,width:240,height:60};
   if(el){ el.scrollIntoView({block:"center",behavior:"auto"}); r=el.getBoundingClientRect(); }
   const pad=8;
@@ -2815,10 +2819,19 @@ function placeCoach(st){
       if(t) t.innerHTML=fpCardInner(fake,u);
     },0);
   }
-  const below = hy+hh+14+150 < vh;
-  box.style.top = (below ? hy+hh+14 : Math.max(12, hy-14-box.offsetHeight-140))+"px";
-  box.style.left = Math.max(12, Math.min(vw-box.offsetWidth-12, r.left+r.width/2-box.offsetWidth/2))+"px";
-  if(!below) box.style.top = Math.max(12, hy - box.offsetHeight - 14)+"px";
+  const posBox=()=>{
+    const bh=box.offsetHeight, bw=box.offsetWidth;
+    const TOP=12, BOT=vh-78;                 /* 底部保留 tab bar 空間 */
+    const sBelow=BOT-(hy+hh+14), sAbove=(hy-14)-TOP;
+    let t;
+    if(bh<=sBelow)      t=hy+hh+14;          /* 放洞下面 */
+    else if(bh<=sAbove) t=hy-14-bh;          /* 放洞上面 */
+    else t=(sAbove>=sBelow)?TOP:BOT-bh;      /* 都塞不下 → 選空間大的那邊貼齊 */
+    box.style.top=Math.max(TOP,Math.min(t,Math.max(TOP,BOT-bh)))+"px";
+    box.style.left=Math.max(12,Math.min(vw-bw-12,r.left+r.width/2-bw/2))+"px";
+  };
+  posBox();
+  setTimeout(posBox,400);                    /* 示範照片載入後高度會變，重算一次 */
   $("cSkip").onclick=coachEnd;
   $("cNext").onclick=()=>{
     if(st.need && !st.need()){ toast(st.err||"再完成一下"); return; }
