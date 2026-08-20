@@ -248,14 +248,59 @@ label.fld input:focus,label.fld select:focus{outline:2px solid var(--orange);out
   background:linear-gradient(180deg,rgba(255,240,205,.5),rgba(255,235,190,.1) 55%,transparent 78%);
   clip-path:polygon(43% 0,57% 0,100% 100%,0 100%);animation:spotIn .8s .15s forwards ease-out;}
 @keyframes spotIn{to{transform:translateX(-50%) scaleY(1);}}
-.debutcard{position:relative;z-index:3;opacity:0;animation:cardIn .9s .75s forwards cubic-bezier(.25,1.3,.4,1);}
-@keyframes cardIn{0%{opacity:0;transform:translateY(46px) scale(.72) rotate(-7deg);}
+.debutcard{position:relative;z-index:3;opacity:0;transform-origin:50% 60%;
+  animation:cardIn 1.15s .6s forwards cubic-bezier(.22,1.02,.3,1);}
+/* 從高處旋轉著掉下來，落地時壓一下再回彈 */
+@keyframes cardIn{
+  0%{opacity:0;transform:translateY(-190px) rotate(-320deg) scale(.28);}
+  45%{opacity:1;}
+  62%{transform:translateY(16px) rotate(9deg) scale(1.07);}
+  78%{transform:translateY(-9px) rotate(-4deg) scale(.98);}
+  90%{transform:translateY(3px) rotate(1.5deg) scale(1.01);}
   100%{opacity:1;transform:none;}}
-.debuttxt{z-index:3;color:#F6EBD6;text-align:center;opacity:0;animation:fadeIn .6s 1.5s forwards;}
+/* 落地衝擊波 */
+.debutcard::after{content:"";position:absolute;left:50%;bottom:-10px;width:60%;height:16px;
+  margin-left:-30%;border-radius:50%;pointer-events:none;
+  background:radial-gradient(ellipse,rgba(255,226,168,.85),transparent 70%);
+  opacity:0;animation:landRing .7s 1.32s ease-out forwards;}
+@keyframes landRing{0%{opacity:.95;transform:scale(.3);}100%{opacity:0;transform:scale(2.6);}}
+.debuttxt{z-index:3;color:#F6EBD6;text-align:center;opacity:0;animation:fadeIn .6s 1.75s forwards;}
 .debuttxt b{font-family:'Huninn',sans-serif;font-size:23px;display:block;}
 .debuttxt small{font-size:12.5px;color:#B8A88E;}
 @keyframes fadeIn{to{opacity:1;}}
-.debut .btn{z-index:3;opacity:0;animation:fadeIn .5s 1.9s forwards;}
+.debut .btn{z-index:3;opacity:0;animation:fadeIn .5s 2.15s forwards;}
+
+/* 導覽完成 */
+.finale{position:fixed;inset:0;z-index:97;background:radial-gradient(circle at 50% 38%,#3A2D1D,#0B0805 72%);
+  display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;overflow:hidden;}
+.finale.on{display:flex;}
+.finale .fbeam{position:absolute;inset:-30%;pointer-events:none;
+  background:conic-gradient(from 0deg,transparent 0deg,rgba(255,214,130,.16) 24deg,transparent 48deg,
+    transparent 72deg,rgba(255,214,130,.16) 96deg,transparent 120deg,transparent 144deg,
+    rgba(255,214,130,.16) 168deg,transparent 192deg,transparent 216deg,rgba(255,214,130,.16) 240deg,
+    transparent 264deg,transparent 288deg,rgba(255,214,130,.16) 312deg,transparent 336deg);
+  animation:finSpin 16s linear infinite;opacity:0;animation-name:finSpin,fadeIn;
+  animation-duration:16s,.9s;animation-iteration-count:infinite,1;animation-fill-mode:none,forwards;}
+@keyframes finSpin{to{transform:rotate(360deg);}}
+.finale .fmedal{position:relative;z-index:3;width:104px;height:104px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;color:#2A2119;
+  background:radial-gradient(circle at 34% 28%,#FFF3D2,#E3BC55 58%,#B98A28);
+  box-shadow:0 0 0 6px rgba(255,214,130,.16),0 14px 38px rgba(0,0,0,.6);
+  opacity:0;animation:finPop .85s cubic-bezier(.2,1.5,.35,1) .1s forwards;}
+.finale .fmedal svg{width:52px;height:52px;}
+@keyframes finPop{0%{opacity:0;transform:scale(.2) rotate(-160deg);}
+  100%{opacity:1;transform:none;}}
+.finale .fmedal::after{content:"";position:absolute;inset:-8px;border-radius:50%;
+  border:2px solid rgba(255,226,168,.9);opacity:0;
+  animation:finRing 1.1s .55s ease-out forwards;}
+@keyframes finRing{0%{opacity:.9;transform:scale(.8);}100%{opacity:0;transform:scale(2.2);}}
+.finale .ftx{position:relative;z-index:3;text-align:center;color:#F6EBD6;opacity:0;
+  animation:fadeIn .6s .75s forwards;}
+.finale .ftx b{display:block;font-family:'Huninn',sans-serif;font-size:26px;font-weight:400;}
+.finale .ftx small{font-size:12.5px;color:#BCAC91;}
+.finale .btn{position:relative;z-index:3;opacity:0;animation:fadeIn .5s 1.1s forwards;
+  padding:13px 30px;font-size:15px;}
+.finale .confetti{z-index:4;}
 
 /* coach */
 .coach{position:fixed;inset:0;z-index:88;display:none;pointer-events:none;}
@@ -508,9 +553,18 @@ label.fld input:focus,label.fld select:focus{outline:2px solid var(--orange);out
 .serialbox .sbtx small{font-size:11.5px;color:#B7A88F;line-height:1.5;display:block;}
 
 /* 日記：台灣散步足跡地圖 */
-.twmap{border-radius:14px;background:linear-gradient(165deg,#2C2219,#130E08);
-  padding:12px 10px;display:flex;justify-content:center;box-shadow:inset 0 2px 14px rgba(0,0,0,.6);}
-.twmap svg{width:100%;max-width:206px;height:auto;display:block;}
+.twmap{position:relative;border-radius:14px;background:linear-gradient(165deg,#2C2219,#130E08);
+  height:min(62vh,420px);overflow:hidden;box-shadow:inset 0 2px 14px rgba(0,0,0,.6);
+  touch-action:none;cursor:grab;}
+.twmap:active{cursor:grabbing;}
+.twmap svg{width:100%;height:100%;display:block;}
+.twzoom{position:absolute;right:10px;bottom:10px;z-index:5;display:flex;flex-direction:column;gap:6px;}
+.twzoom button{width:34px;height:34px;border-radius:10px;background:rgba(255,246,230,.92);
+  color:#3A2E20;font-size:19px;font-weight:700;line-height:1;display:flex;align-items:center;
+  justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.45);}
+.twzoom button.rs{font-size:11px;font-weight:700;}
+.twhintbar{position:absolute;left:10px;top:10px;z-index:5;font-size:10.5px;color:#C6B499;
+  background:rgba(0,0,0,.35);border-radius:99px;padding:3px 10px;pointer-events:none;}
 .twmap .lit{animation:twGlow 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%;}
 @keyframes twGlow{0%,100%{opacity:.75;}50%{opacity:1;}}
 .twstat{display:flex;align-items:baseline;gap:9px;margin-top:11px;}
@@ -823,7 +877,14 @@ p.ddi{font-size:12.5px;color:var(--ink2);background:#FAF6EE;border-radius:11px;
     <div class="box">
       <h3><svg class="ic" viewBox="0 0 24 24"><path d="M12 21s7-7.3 7-12a7 7 0 1 0-14 0c0 4.7 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>一生走過的地方</h3>
       <p style="font-size:12px;color:var(--soft);margin-bottom:8px;">依 GPS 實際走過的位置點亮，還沒去過的留在暗處。</p>
-      <div class="twmap" id="twMap"></div>
+      <div class="twmap" id="twMap">
+        <div class="twhintbar">雙指縮放 · 拖曳移動</div>
+        <div class="twzoom">
+          <button type="button" id="twIn">+</button>
+          <button type="button" id="twOut">−</button>
+          <button type="button" class="rs" id="twReset">全島</button>
+        </div>
+      </div>
       <div class="twstat"><b id="twPct">0%</b><small>已點亮 <span id="twLit">0</span> / <span id="twAll">0</span> 個地區</small></div>
       <p style="font-size:11px;color:var(--soft);margin-top:6px;" id="twHint"></p>
       <div class="pv"><b>正式版</b><span>目前已串接 GPS：<em>每次散步走過的座標都會被記錄</em>並點亮對應地區。正式版會再把完整路線一條一條畫上去。</span></div>
@@ -878,6 +939,15 @@ p.ddi{font-size:12.5px;color:var(--ink2);background:#FAF6EE;border-radius:11px;
   <div class="debutcard" id="debutCard"></div>
   <div class="debuttxt"><b id="debutName">牠登場了</b><small>你的第一張狗狗卡完成</small></div>
   <button class="btn pri" id="debutOk">太好了</button>
+</div>
+
+<div class="finale" id="finale">
+  <div class="fbeam"></div>
+  <div class="fmedal">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="14" r="6"/><path d="M9 8L7 2h10l-2 6"/><path d="M9.6 14.2l1.7 1.7 3.2-3.4"/></svg>
+  </div>
+  <div class="ftx"><b>準備好了</b><small id="finaleName"></small></div>
+  <button class="btn pri" id="finaleOk">開始逛逛吧</button>
 </div>
 
 <div class="coach" id="coach">
@@ -1734,20 +1804,8 @@ let pulled=[], flipIdx=0, gotNew=[];
 function openPack(paid){
   if(!paid){ if(S.packDate===today()){ toast("今天的免費卡包已經開過了"); return; } S.packDate=today(); }
   /* 第一包＝固定品種（打散順序）；之後才是正常機率抽卡 */
-  if(S.packs===0){
-    /* 新手包：4 張普卡（有實拍照片那批）＋ 最後一張稀有壓軸 */
-    const pool=CFG.FIRST_PACK.slice().sort(()=>Math.random()-0.5).slice(0,DAILY_CARDS-1);
-    const commons=pool.map(sl=>{
-      let bi=BREEDS.findIndex(x=>x[1]===sl); if(bi<0) bi=0;
-      return {idx:bi,name:BREEDS[bi][0],slug:BREEDS[bi][1],rar:BREEDS[bi][2]};
-    });
-    const rarePool=BREEDS.map((b,i)=>[b,i]).filter(x=>x[0][2]===2);
-    const pk=rarePool[Math.floor(Math.random()*rarePool.length)];
-    commons.push({idx:pk[1],name:pk[0][0],slug:pk[0][1],rar:2});
-    pulled=commons;
-  } else {
-    pulled=Array.from({length:DAILY_CARDS},pullOne);
-  }
+  /* 一律照稀有度機率隨機開，不再有固定的新手卡池 */
+  pulled=Array.from({length:DAILY_CARDS},pullOne);
   pulled.forEach((p,i)=>PIC.load(p.slug,null,i===0?0:1));   /* 撕開前先把照片排進佇列 */
   gotNew=[]; S.packs++; pulled.forEach(p=>{ if(p.rar===3) S.legendPull++; });
   flipIdx=0;
@@ -2644,6 +2702,80 @@ function litSpots(){
   });
   return TW_SPOTS.filter(sp=>sp.on);
 }
+/* 台灣地圖的縮放／平移：直接操作 viewBox，手勢跟 Zenly 一樣是雙指縮放＋拖曳 */
+const TW_BOX={x:0,y:0,w:226,h:404};
+let twFitDone=false;
+let twView={x:0,y:0,w:226,h:404};
+const twViewStr = () => twView.x.toFixed(1)+" "+twView.y.toFixed(1)+" "+twView.w.toFixed(1)+" "+twView.h.toFixed(1);
+function twApply(){ const el=$("twSvg"); if(el) el.setAttribute("viewBox",twViewStr()); }
+function twClamp(){
+  const minW=TW_BOX.w/14, maxW=TW_BOX.w;        /* 最多放大 14 倍 */
+  twView.w=Math.max(minW,Math.min(maxW,twView.w));
+  twView.h=twView.w*(TW_BOX.h/TW_BOX.w);
+  const mx=TW_BOX.w*0.35, my=TW_BOX.h*0.35;      /* 允許稍微拖出邊界 */
+  twView.x=Math.max(TW_BOX.x-mx,Math.min(TW_BOX.x+TW_BOX.w-twView.w+mx,twView.x));
+  twView.y=Math.max(TW_BOX.y-my,Math.min(TW_BOX.y+TW_BOX.h-twView.h+my,twView.y));
+}
+function twZoomAt(k,cx,cy){
+  const box=$("twMap"); if(!box) return;
+  const r=box.getBoundingClientRect();
+  const fx=(cx-r.left)/r.width, fy=(cy-r.top)/r.height;
+  const px=twView.x+twView.w*fx, py=twView.y+twView.h*fy;
+  const old=twView.w;
+  twView.w=twView.w/k; twClamp();
+  const sc=twView.w/old;
+  twView.x=px-(px-twView.x)*sc;
+  twView.y=py-(py-twView.y)*sc;
+  twClamp(); twApply();
+}
+function twReset(){ twView={x:TW_BOX.x,y:TW_BOX.y,w:TW_BOX.w,h:TW_BOX.h}; twApply(); }
+function twFitLit(){
+  const g=(S.geo||[]); if(g.length<2) return twReset();
+  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  g.forEach(pt=>{ const q=TW_PROJ(pt);
+    x0=Math.min(x0,q[0]); x1=Math.max(x1,q[0]); y0=Math.min(y0,q[1]); y1=Math.max(y1,q[1]); });
+  const pad=26; x0-=pad; y0-=pad; x1+=pad; y1+=pad;
+  const w=Math.max(x1-x0,(y1-y0)*(TW_BOX.w/TW_BOX.h));
+  twView.x=(x0+x1)/2-w/2; twView.w=w; twClamp();
+  twView.y=(y0+y1)/2-twView.h/2; twClamp(); twApply();
+}
+(function twGestures(){
+  const box=$("twMap"); if(!box) return;
+  const pts=new Map(); let base=null;
+  const dist=a=>Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);
+  box.addEventListener("pointerdown",e=>{
+    if(e.target.closest(".twzoom")) return;
+    box.setPointerCapture(e.pointerId);
+    pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    base=null;
+  });
+  box.addEventListener("pointermove",e=>{
+    if(!pts.has(e.pointerId)) return;
+    const prev=pts.get(e.pointerId);
+    pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    const arr=[...pts.values()];
+    const r=box.getBoundingClientRect();
+    if(arr.length>=2){
+      const d=dist(arr);
+      if(base===null){ base=d; return; }
+      if(base>4){ twZoomAt(d/base,(arr[0].x+arr[1].x)/2,(arr[0].y+arr[1].y)/2); }
+      base=d;
+    } else {
+      twView.x-=(e.clientX-prev.x)/r.width*twView.w;
+      twView.y-=(e.clientY-prev.y)/r.height*twView.h;
+      twClamp(); twApply();
+    }
+  });
+  const up=e=>{ pts.delete(e.pointerId); if(pts.size<2) base=null; };
+  box.addEventListener("pointerup",up);
+  box.addEventListener("pointercancel",up);
+  box.addEventListener("wheel",e=>{ e.preventDefault();
+    twZoomAt(e.deltaY<0?1.16:1/1.16,e.clientX,e.clientY); },{passive:false});
+  box.addEventListener("dblclick",e=>twZoomAt(1.8,e.clientX,e.clientY));
+  $("twIn").onclick=()=>{ const r=box.getBoundingClientRect(); twZoomAt(1.5,r.left+r.width/2,r.top+r.height/2); };
+  $("twOut").onclick=()=>{ const r=box.getBoundingClientRect(); twZoomAt(1/1.5,r.left+r.width/2,r.top+r.height/2); };
+  $("twReset").onclick=twReset;
+})();
 function renderTaiwan(){
   const box=$("twMap"); if(!box) return;
   const lit=litSpots();
@@ -2673,9 +2805,15 @@ function renderTaiwan(){
   if(geo.length>1){
     route='<path d="M'+geo.map(p=>{const q=TW_PROJ(p);return q[0].toFixed(1)+" "+q[1].toFixed(1);}).join(" L ")
       +'" fill="none" stroke="#F5821F" stroke-width="1.6" stroke-linecap="round" '
-      +'stroke-linejoin="round" opacity=".75"/>';
+      +'stroke-linejoin="round" opacity=".75" vector-effect="non-scaling-stroke"/>';
   }
-  box.innerHTML='<svg viewBox="0 0 226 404" xmlns="http://www.w3.org/2000/svg">'
+  let layer=$("twLayer");
+  if(!layer){
+    layer=document.createElement("div"); layer.id="twLayer";
+    layer.style.cssText="position:absolute;inset:0;";
+    box.insertBefore(layer,box.firstChild);
+  }
+  layer.innerHTML='<svg id="twSvg" viewBox="'+twViewStr()+'" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">'
     +'<defs>'
       +'<radialGradient id="twG">'
         +'<stop offset="0" stop-color="#FFD98A" stop-opacity=".85"/>'
@@ -2695,6 +2833,7 @@ function renderTaiwan(){
   $("twLit").textContent=lit.length;
   $("twAll").textContent=TW_SPOTS.length;
   $("twPct").textContent=Math.round(lit.length/TW_SPOTS.length*100)+"%";
+  if(!twFitDone && (S.geo||[]).length>1){ twFitDone=true; setTimeout(twFitLit,60); }
   const hint=$("twHint");
   if(hint) hint.textContent = geo.length
     ? "已記錄 "+geo.length+" 個 GPS 位置點"
@@ -2935,6 +3074,7 @@ function playDebut(){
   $("debutName").textContent=(S.dog.name||"牠")+" 登場了";
   $("debut").classList.add("on");
 }
+$("finaleOk").onclick=()=>{ $("finale").classList.remove("on"); switchTab("card"); };
 $("debutOk").onclick=()=>{ $("debut").classList.remove("on"); if(coachActive) coachNext(); };
 
 /* ---------- 分步引導 ---------- */
@@ -2954,17 +3094,17 @@ const STEPS=[
  {tab:"pack", target:"#btnFree", title:"每天可以開一包卡包", text:"公測版每天 5 張免費。卡片來自其他飼主的狗。",
   btn:"開卡包", act:()=>{ if(S.packDate!==today()) openPack(false); else { toast("今天已開過，直接看圖鑑"); coachNext(); } }, hold:true},
  {tab:"dex", target:"#dexGrid", title:"抽到的都收進圖鑑", text:"100 種品種，還沒收集的會是模糊的剪影。集滿是長期目標。"},
- {tab:"trail", target:"#mapWrap", title:"整座城市都可以找狗", text:"你的足跡會留在地圖上，別人走過就能撿走。而你散步時也會自動撿到 50 公尺內的狗。"},
+ {tab:"trail", target:"#mapWrap", title:"整座城市都可以遇見狗", text:"你的足跡會留在地圖上，別人走過就能撿走。而你散步時也會自動撿到 50 公尺內的狗。"},
  {tab:"trail", target:"#btnWalk", title:"散步就是這個 App 的玩法",
-  text:"按下去之後，手機會用 GPS 記錄你走了多遠，沿路經過的足跡卡<b>全部自動撿起來</b>，不用一直看螢幕。<br><br>走完按「結束散步」，會一次結算這趟遇到了誰、解鎖了哪些新品種。",
+  text:"按下開始散步後，只要經過了別人留下的足跡，就會<b>自動撿起足跡卡</b>。<br><br>結束散步後，可以查看解鎖了哪些圖鑑、遇到了哪些足跡卡。",
   btn:"懂了"},
  {tab:"trail", target:"#btnLeave", title:"現在，真的拍一張看看",
   text:"這是散步時最重要的動作：拍下牠現在的樣子，留一張足跡在原地。<br><br>這張照片會<b>直接換到牠的卡面上</b>，也會成為今天日記的那一張。走過這裡的人撿到的，就是這張卡。",
   btn:"拍照留下足跡", act:()=>coachTakeShot(), hold:true},
  {tab:"trail", target:"#myFpList", title:"這張足跡已經留在地圖上了",
-  text:"剛剛那張照片已經放到你現在的位置，也記進今天的足跡（1/5）。一天最多可以留 5 張。",
+  text:"這張照片是你留下的足跡，也會是別人撿到的足跡卡。而這張照片也會進入到你的日記中。",
   btn:"接著呢？"},
- {tab:"trail", target:"#mapWrap", title:"你也會撿到別人的足跡", demo:true, demoSlug:"australian/shepherd",
+ {tab:"trail", target:"#mapWrap", fabOff:true, title:"你也會撿到別人的足跡", demo:true, demoSlug:"australian/shepherd",
   demoName:"可可", demoBreed:"澳洲牧羊犬", demoNote:"在草地上追自己的尾巴",
   text:"散步經過別人留下的地方，就會像這樣撿到一張足跡卡。這隻是<b style=\'color:#C05F0A;\'>少見</b>品種：",
   btn:"太好了，收下", onNext:()=>{
@@ -2975,13 +3115,13 @@ const STEPS=[
     applyPinnedDexPics(); save();
     coachCorgiIdx=idx;
   }},
- {tab:"dex", target:"#dexGrid", flashIdx:()=>coachCorgiIdx, pre:()=>{ dexFilter="all";
+ {tab:"dex", target:"#dexGrid", fabOff:true, flashIdx:()=>coachCorgiIdx, pre:()=>{ dexFilter="all";
    document.querySelectorAll(".dexbar button").forEach(x=>x.classList.toggle("on",x.dataset.f==="all"));
    renderDex(); },
   title:"撿到的足跡也會立刻收進圖鑑", text:"剛剛撿到的澳洲牧羊犬，已經自動收進圖鑑了。點開任一品種，還能看到你在那個品種底下收過的每一張卡。", btn:"看到了"},
  {tab:"diary", target:"#cal", pre:()=>renderDiary(),
-  title:"你拍的那張，也留在日記裡了",
-  text:"剛剛你拍的那張照片，已經自動存進今天的日期格了。每天一張，累積成牠的一整年。日記還會記錄你們一起去過的地方——每一次散步的路線都會點亮地圖，牠這一生走過哪裡、看過什麼風景，都會完整留在這裡。",
+  title:"每天一張，就是一本日記",
+  text:"每天散步拍的照片都會自動存進當天的格子，記下牠每天的樣子，也記下你們一起去過的地方。",
   btn:"我知道了"},
  {tab:"badge", target:"#badgeWrap", title:"散步和收藏都會累積成就",
   text:"熬夜狗狗、海灘狗狗、長跑狗狗、社交狗狗…每一枚章都是一件不同的事，章面上直接印著要達成的數字。<br><br>"
@@ -3027,14 +3167,31 @@ let coachCorgiIdx=-1;
 let coachActive=false, coachIdx=0;
 function coachStart(){ coachActive=true; coachIdx=0; coachShow(); }
 function coachNext(){ coachIdx++; if(coachIdx>=STEPS.length) return coachEnd(); coachShow(); }
-function coachEnd(){
-  coachActive=false; $("coach").classList.remove("on"); $("coachPulse").style.display="none";
-  S.seen=true; save(); toast("開始你的收藏吧");
+function coachEnd(fin){
+  coachActive=false; coachWaitShot=false;
+  $("coach").classList.remove("on"); $("coachPulse").style.display="none";
+  S.seen=true; save(); renderLeave();
+  if(fin) playFinale(); else toast("開始你的收藏吧");
+}
+/* 導覽結束：給一個真的「完成了」的收尾，而不是一句 toast */
+function playFinale(){
+  const f=$("finale");
+  $("finaleName").textContent=(S.dog.name||"牠")+" 的收藏，從今天開始";
+  f.classList.add("on");
+  for(let i=0;i<34;i++){
+    const c=document.createElement("i"); c.className="confetti";
+    const col=["#F5C242","#F5821F","#FFF1CE","#E8734A","#A8D0E8"][i%5];
+    c.style.cssText="background:"+col+";left:50%;top:38%;--dx:"+((Math.random()-.5)*440).toFixed(0)
+      +"px;--dy:"+(140+Math.random()*340).toFixed(0)+"px;animation-delay:"+(Math.random()*.35).toFixed(2)+"s";
+    f.appendChild(c); setTimeout(()=>c.remove(),1800);
+  }
 }
 function coachShow(){
   const st=STEPS[coachIdx];
   if(st.tab) switchTab(st.tab);
   if(st.pre) st.pre();
+  const fab=$("btnLeave");
+  if(fab){ if(st.fabOff) fab.classList.add("off"); else renderLeave(); }
   $("coach").classList.add("on");
   setTimeout(()=>placeCoach(st),120);
   if(st.flashIdx){ const i=st.flashIdx(); if(i>=0) setTimeout(()=>flashDex([i]),300); }
@@ -3121,14 +3278,14 @@ function placeCoach(st){
   };
   posBox();
   setTimeout(posBox,400);                    /* 示範照片載入後高度會變，重算一次 */
-  $("cSkip").onclick=coachEnd;
+  $("cSkip").onclick=()=>coachEnd(false);
   $("cNext").onclick=()=>{
     if(st.need && !st.need()){ toast(st.err||"再完成一下"); return; }
     if(st.onNext) st.onNext();
     if(st.after) st.after();
     if(st.act){ $("coach").classList.remove("on"); $("coachPulse").style.display="none"; st.act(); return; }
     if(st.hold){ $("coach").classList.remove("on"); $("coachPulse").style.display="none"; return; }
-    if(st.last) return coachEnd();
+    if(st.last) return coachEnd(true);
     coachNext();
   };
 }
@@ -3177,8 +3334,7 @@ preloadPhotos();
 renderAll(); drawMap(); renderEnc();
 if(!S.seen){
   modal('<h3>歡迎來到 Radog｜狗達</h3>'
-    +'<p>把每天遛狗，變成一場可以收藏一輩子的遊戲。</p>'
-    +'<p>接下來會帶你走一次，大概一分鐘。</p>'
+    +'<p>接下來會帶你走一次新手教學，大概一分鐘。</p>'
     +'<div class="note">所有資料只保存在這台裝置的瀏覽器，不會上傳。</div>',
     [["直接逛逛",()=>{ S.seen=true; save(); }],["開始導覽",coachStart,1]]);
 }
