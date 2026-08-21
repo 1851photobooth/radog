@@ -52,12 +52,13 @@ p.sub{font-size:12.5px;color:var(--soft);margin-bottom:14px;}
 
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;max-width:520px;margin:0 auto;
   height:calc(var(--tab) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);
-  background:rgba(255,253,248,.95);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;}
+  background:linear-gradient(180deg,#2F7A3A,#1E5B2A);backdrop-filter:blur(12px);
+  border-top:1px solid rgba(0,0,0,.10);display:flex;}
 nav.tabs button{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:3px;color:var(--soft);}
+  justify-content:center;gap:3px;color:rgba(255,255,255,.72);}
 nav.tabs button svg{width:21px;height:21px;}
 nav.tabs button .lb{font-size:10px;font-weight:700;}
-nav.tabs button.on{color:var(--orange);}
+nav.tabs button.on{color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.22);}
 nav.tabs button .dot{position:absolute;top:8px;left:calc(50% + 7px);width:7px;height:7px;
   border-radius:50%;background:#E5432E;display:none;}
 nav.tabs button.alert .dot{display:block;}
@@ -425,7 +426,8 @@ label.fld input:focus,label.fld select:focus{outline:2px solid var(--orange);out
 /* 地圖上的足跡＝照片圖釘，直接看得到那隻狗 */
 .mappin.phpin{width:38px;}
 .mappin.phpin .pinph{display:block;width:38px;height:38px;border-radius:50%;overflow:hidden;
-  border:2.5px solid #fff;background:#EDE6D8;box-shadow:0 3px 8px rgba(0,0,0,.35);}
+  border:2.5px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,.35);
+  background:#EDE6D8 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='rgba(120,100,70,.42)'><ellipse cx='7' cy='9' rx='2' ry='2.6'/><ellipse cx='12' cy='7' rx='2' ry='2.7'/><ellipse cx='17' cy='9' rx='2' ry='2.6'/><path d='M12 12c-3 0-5 2.2-5 4.4S9 21 12 21s5-2.4 5-4.6S15 12 12 12z'/></svg>") center/58% no-repeat;}
 .mappin.phpin .pinph img{width:100%;height:100%;object-fit:cover;}
 .mappin.phpin .pintail{position:absolute;left:50%;bottom:-6px;margin-left:-5px;width:0;height:0;
   border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid #fff;}
@@ -523,6 +525,7 @@ label.fld input:focus,label.fld select:focus{outline:2px solid var(--orange);out
 .fpfab svg{width:18px;height:18px;}
 .fpfab .cnt{font-size:11px;font-weight:700;background:rgba(255,255,255,.25);
   border-radius:99px;padding:1px 8px;letter-spacing:.5px;}
+body.mopen .fpfab{opacity:0;pointer-events:none;}
 .fpfab.off{background:#9C8C77;box-shadow:0 4px 12px rgba(0,0,0,.25);pointer-events:none;}
 
 /* 往下還有東西：地圖太高，不提示會以為頁面到底了 */
@@ -553,18 +556,20 @@ label.fld input:focus,label.fld select:focus{outline:2px solid var(--orange);out
 .serialbox .sbtx small{font-size:11.5px;color:#B7A88F;line-height:1.5;display:block;}
 
 /* 日記：台灣散步足跡地圖 */
-.twmap{position:relative;border-radius:14px;background:linear-gradient(165deg,#2C2219,#130E08);
-  height:min(62vh,420px);overflow:hidden;box-shadow:inset 0 2px 14px rgba(0,0,0,.6);
-  touch-action:none;cursor:grab;}
-.twmap:active{cursor:grabbing;}
-.twmap svg{width:100%;height:100%;display:block;}
-.twzoom{position:absolute;right:10px;bottom:10px;z-index:5;display:flex;flex-direction:column;gap:6px;}
+.twmap{position:relative;border-radius:14px;background:#E6E9DF;
+  height:min(62vh,420px);overflow:hidden;box-shadow:inset 0 2px 10px rgba(0,0,0,.18);}
+.twfog{position:absolute;inset:0;z-index:450;pointer-events:none;}
+.twfog svg{width:100%;height:100%;display:block;}
+.twarea{position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:900;
+  background:rgba(255,255,255,.94);border-radius:99px;padding:4px 15px;font-weight:700;
+  font-size:13px;color:#2F7A2A;box-shadow:0 2px 8px rgba(0,0,0,.18);pointer-events:none;}
+.twzoom{position:absolute;right:10px;bottom:10px;z-index:900;display:flex;flex-direction:column;gap:6px;}
 .twzoom button{width:34px;height:34px;border-radius:10px;background:rgba(255,246,230,.92);
   color:#3A2E20;font-size:19px;font-weight:700;line-height:1;display:flex;align-items:center;
   justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.45);}
 .twzoom button.rs{font-size:11px;font-weight:700;}
-.twhintbar{position:absolute;left:10px;top:10px;z-index:5;font-size:10.5px;color:#C6B499;
-  background:rgba(0,0,0,.35);border-radius:99px;padding:3px 10px;pointer-events:none;}
+.twhintbar{position:absolute;left:10px;top:auto;bottom:10px;z-index:900;font-size:10.5px;color:#5B6B4E;
+  background:rgba(255,255,255,.85);border-radius:99px;padding:3px 10px;pointer-events:none;}
 .twmap .lit{animation:twGlow 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%;}
 @keyframes twGlow{0%,100%{opacity:.75;}50%{opacity:1;}}
 .twstat{display:flex;align-items:baseline;gap:9px;margin-top:11px;}
@@ -876,8 +881,9 @@ p.ddi{font-size:12.5px;color:var(--ink2);background:#FAF6EE;border-radius:11px;
     </div>
     <div class="box">
       <h3><svg class="ic" viewBox="0 0 24 24"><path d="M12 21s7-7.3 7-12a7 7 0 1 0-14 0c0 4.7 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>一生走過的地方</h3>
-      <p style="font-size:12px;color:var(--soft);margin-bottom:8px;">依 GPS 實際走過的位置點亮，還沒去過的留在暗處。</p>
+      <p style="font-size:12px;color:var(--soft);margin-bottom:8px;">走過的地方會把綠色迷霧揭開，沒去過的地方留著。</p>
       <div class="twmap" id="twMap">
+        <div class="twarea" id="twArea">還沒走過</div>
         <div class="twhintbar">雙指縮放 · 拖曳移動</div>
         <div class="twzoom">
           <button type="button" id="twIn">+</button>
@@ -989,8 +995,21 @@ const supa = window.supabase?.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KE
 let AUTH_USER = null;
 window.AUTH_USER = null;
 
+/* 換帳號保護：本機資料是綁在「上一個登入者」身上的，
+   換成別的 Google 帳號時必須整包清掉，否則會看到上一位的狗、序號與圖鑑。 */
+function switchLocalUser(uid){
+  if(!uid) return false;
+  if(S.authId && S.authId!==uid){
+    try{ localStorage.removeItem(KEY); localStorage.removeItem("radogPix"); }catch(e){}
+    location.reload();
+    return true;
+  }
+  if(!S.authId){ S.authId=uid; save(); }
+  return false;
+}
 async function ensureProfile(user){
   if(!supa || !user) return null;
+  if(switchLocalUser(user.id)) return null;
   const {data: existing, error: findErr} = await supa.from('profiles').select('*').eq('id',user.id).maybeSingle();
   if(findErr) throw findErr;
   if(existing){
@@ -1020,19 +1039,33 @@ async function syncDogFromCloud(){
   }
 }
 
+/* ---------- 本機開發模式 ----------
+   localhost / 127.0.0.1 / file:// 或網址帶 ?dev=1 時直接跳過登入，
+   不碰 Supabase，資料全走 localStorage，方便本地改版即時看結果。
+   正式網址（GitHub Pages）不受影響，仍然走 Google 登入。 */
+const DEV_MODE = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)
+  || location.protocol==='file:'
+  || /[?&]dev=1/.test(location.search);
 async function bootstrapAuth(){
+  if(DEV_MODE){
+    $('authGate').classList.add('hidden');
+    if(!S.authId){ S.authId='dev-local'; save(); }
+    if(!S.serialLocked){ S.serial=S.serial||CFG.SERIAL; }
+    console.log('[Radog] DEV_MODE：略過 Google 登入，資料只存在這台裝置');
+    return;
+  }
   if(!supa){ showAuthStatus('無法載入登入服務'); return; }
   showAuthStatus('正在確認登入狀態…');
   const {data:{session}} = await supa.auth.getSession();
   if(session?.user){
-    try{ const profile=await ensureProfile(session.user); await syncDogFromCloud(); await assignSerial(); enterApp(profile); }
+    try{ const profile=await ensureProfile(session.user); if(!profile) return; await syncDogFromCloud(); await assignSerial(); enterApp(profile); }
     catch(e){ console.error(e); showAuthStatus('登入成功，但資料同步失敗：'+(e.message||e)); }
   }else{
     $('authGate').classList.remove('hidden'); showAuthStatus('請先使用 Google 登入');
   }
   supa.auth.onAuthStateChange(async (_event,newSession)=>{
     if(newSession?.user){
-      try{ const profile=await ensureProfile(newSession.user); await syncDogFromCloud(); await assignSerial(); enterApp(profile); }catch(e){ console.error(e); showAuthStatus('帳號建立失敗：'+(e.message||e)); }
+      try{ const profile=await ensureProfile(newSession.user); if(!profile) return; await syncDogFromCloud(); await assignSerial(); enterApp(profile); }catch(e){ console.error(e); showAuthStatus('帳號建立失敗：'+(e.message||e)); }
     }else{ $('authGate').classList.remove('hidden'); }
   });
 }
@@ -1565,7 +1598,7 @@ const today = () => new Date().toISOString().slice(0,10);
 const ymd = d => d.toISOString().slice(0,10);
 function uuid(){ return "u-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8); }
 let S = {
-  uid:"", serial:0, seen:false, coachStep:-1,
+  uid:"", authId:"", serial:0, seen:false, coachStep:-1,
   dog:{name:"",breed:"柴犬",sex:"",birth:"",skill:"",hobby:"",intro:"",photo:"",stickers:[]},
   pt:0, owned:{}, dexPhotos:{}, dexImg:{},
   packDate:"", packs:0, legendPull:0, lastPull:"",
@@ -1595,10 +1628,15 @@ async function assignSerial(){
   if(supa){
     try{
       const {count} = await supa.from('dogs').select('*',{count:'exact',head:true});
-      if(typeof count==='number') n = count + 1;
+      if(typeof count==='number'){
+        /* 已經有這隻狗 → 沿用既有名次；還沒登記 → 下一個號碼（尚未鎖定） */
+        const {data:mine} = await supa.from('dogs').select('owner_id').eq('owner_id',AUTH_USER?.id||'').maybeSingle();
+        n = mine ? count : count + 1;
+        if(mine){ S.serialLocked = true; }
+      }
     }catch(e){ console.warn('serial fallback', e); }
   }
-  S.serial = n; S.serialLocked = true; save();
+  S.serial = n; save();
   renderCard();
 }
 async function saveDogToCloud(){
@@ -1622,12 +1660,12 @@ function modal(html, acts){
   (acts||[["知道了",null,1]]).forEach(a=>{
     const b=document.createElement("button");
     b.className="btn"+(a[2]?" pri":""); b.textContent=a[0];
-    b.onclick=()=>{ $("mask").classList.remove("on"); if(a[1]) a[1](); };
+    b.onclick=()=>{ $("mask").classList.remove("on"); document.body.classList.remove("mopen"); if(a[1]) a[1](); };
     box.appendChild(b);
   });
-  $("mask").classList.add("on");
+  $("mask").classList.add("on"); document.body.classList.add("mopen");
 }
-$("mask").onclick = e => { if(e.target.id==="mask") $("mask").classList.remove("on"); };
+$("mask").onclick = e => { if(e.target.id==="mask"){ $("mask").classList.remove("on"); document.body.classList.remove("mopen"); } };
 
 const TIERS=[{n:"銅卡",min:0},{n:"銀卡",min:50},{n:"金卡",min:200},{n:"傳說卡",min:600}];
 const tierOf = pt => { let i=0; TIERS.forEach((t,j)=>{ if(pt>=t.min) i=j; }); return i; };
@@ -1723,18 +1761,11 @@ const PIC = (function(){
   function wikiPic(slug,cb){
     const t=wikiOf[slug];
     if(!t){ cb(""); return; }
-    /* 改用 api.php 直接跟維基要 480px 縮圖：
-       舊版是抓 REST summary 再把網址裡的 "320px-" 手動換成 "480px-"，
-       但 Wikimedia 縮圖伺服器不做放大，原檔小於 480px 的條目（冷門 FCI 品種很多）
-       換出來的網址是 404，卡面就變破圖。api.php 會回傳實際存在的尺寸，
-       而且順便處理條目重導向（redirects=1）。 */
-    fetch("https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1"
-      +"&prop=pageimages&piprop=thumbnail&pithumbsize=480&titles="+encodeURIComponent(t))
+    fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(t.replace(/ /g,"_")))
       .then(r=>r.ok?r.json():Promise.reject(new Error("wiki "+r.status)))
       .then(d=>{
-        const pg=d&&d.query&&d.query.pages; let u="";
-        if(pg) for(const k in pg){ if(pg[k].thumbnail&&pg[k].thumbnail.source){ u=pg[k].thumbnail.source; break; } }
-        if(u) cb(u); else throw new Error("no img");
+        const u=(d.thumbnail&&d.thumbnail.source)||(d.originalimage&&d.originalimage.source)||"";
+        if(u) cb(u.replace(/\/\d+px-/,"/480px-")); else throw new Error("no img");
       })
       .catch(()=>wikiSearch(t,cb));
   }
@@ -1815,15 +1846,10 @@ const PIC = (function(){
   }
   function fail(el){
     const slug=el.getAttribute("data-slug");
-    if(!slug) return;
-    const n=+(el.dataset.retried||0);
+    if(!slug || el.dataset.retried) return;
+    el.dataset.retried="1";
     delete cache[slug]; dirty=true;
-    stat.failSlug[slug]=1;
-    /* 重抓一次還是壞掉就直接換保底插畫，絕不把破圖留在卡面上 */
-    if(n>=1){ el.onerror=null; el.src=placeholder(slug); return; }
-    el.dataset.retried=String(n+1);
-    load(slug,u=>{ if(!el.isConnected) return;
-      if(u) el.src=u; else { el.onerror=null; el.src=placeholder(slug); } },0);
+    load(slug,u=>{ if(u && el.isConnected) el.src=u; },0);
   }
   function reset(){ cache={}; for(const k in fb) delete fb[k]; miss=0; offline=false;
     stat.ok=0; stat.failSlug={}; stat.lastErr="";
@@ -2445,11 +2471,11 @@ function drawLeafletMap(pins){
     if(!p.ph && p.slug){
       PIC.load(p.slug,u=>{
         if(!u) return;
-        if(p.fp) p.fp.photo=u;
+        if(p.fp && !PIC.isFb(u)) p.fp.photo=u;
         const el=m.getElement && m.getElement();
         const holder=el&&el.querySelector(".pinph");
         if(holder) holder.innerHTML=PIC.img(u,p.slug);
-      }, p.fp?0:2);
+      }, 0);
     }
   });
   setTimeout(()=>{ try{ LMAP.invalidateSize(); }catch(e){} },60);
@@ -2529,7 +2555,7 @@ function drawSvgPins(pins){
           if(p.fp) p.fp.photo=u;
           const holder=el.querySelector(".pinph");
           if(holder && holder.isConnected) holder.innerHTML=PIC.img(u,p.slug);
-        }, p.fp?0:2);
+        }, 0);
       }
     } else {
       el.innerHTML='<svg class="ic fill" viewBox="0 0 24 24" style="color:'+p.c+';">'+IC.pin+'</svg>';
@@ -2589,7 +2615,7 @@ $("fpPhoto").onchange=e=>{
 function askLeaveFp(url){
   const prev=mkMyFpCard({place:"你現在的位置",t:new Date().toTimeString().slice(0,5),photo:url});
   modal('<h3>留下這張足跡卡</h3>'
-    +'<p style="font-size:12.5px;color:var(--soft);">這張照片會直接換到牠的卡面上，然後放到地圖上你現在的位置。走過的人撿到的就是這張卡。</p>'
+    +'<p style="font-size:12.5px;color:var(--soft);">這張照片會放到地圖上你現在的位置，也會存進今天的日記。走過的人撿到的就是這張足跡卡（登記時的卡面照片不會被換掉）。</p>'
     +'<div class="cardwrap" style="padding:8px 0 4px;">'
       +fpCardInner(prev,url,"width:min(220px,62vw);")+'</div>'
     +'<label class="fld"><span>想說一句話（選填）</span>'
@@ -2604,7 +2630,6 @@ function doLeaveFp(url,note){
     t:new Date().toTimeString().slice(0,5),
     x:0.5+(Math.random()-0.5)*0.07, y:0.5+(Math.random()-0.5)*0.07};
   S.myFp.push(f);
-  S.dog.photo=url;                       /* 足跡照片＝主卡照片，同一份資料 */
   S.photos[k]=url;                       /* 留下的足跡照片＝今天日記的那張縮圖 */
   S.pt+=2; save();
   renderCard(); renderDiary(); renderBadges(); renderLeave();
@@ -2966,142 +2991,68 @@ function litSpots(){
   return TW_SPOTS.filter(sp=>sp.on);
 }
 /* 台灣地圖的縮放／平移：直接操作 viewBox，手勢跟 Zenly 一樣是雙指縮放＋拖曳 */
-const TW_BOX={x:0,y:0,w:226,h:404};
-let twFitDone=false;
-let twView={x:0,y:0,w:226,h:404};
-const twViewStr = () => twView.x.toFixed(1)+" "+twView.y.toFixed(1)+" "+twView.w.toFixed(1)+" "+twView.h.toFixed(1);
-function twApply(){ const el=$("twSvg"); if(el) el.setAttribute("viewBox",twViewStr()); }
-function twClamp(){
-  const minW=TW_BOX.w/14, maxW=TW_BOX.w;        /* 最多放大 14 倍 */
-  twView.w=Math.max(minW,Math.min(maxW,twView.w));
-  twView.h=twView.w*(TW_BOX.h/TW_BOX.w);
-  const mx=TW_BOX.w*0.35, my=TW_BOX.h*0.35;      /* 允許稍微拖出邊界 */
-  twView.x=Math.max(TW_BOX.x-mx,Math.min(TW_BOX.x+TW_BOX.w-twView.w+mx,twView.x));
-  twView.y=Math.max(TW_BOX.y-my,Math.min(TW_BOX.y+TW_BOX.h-twView.h+my,twView.y));
+/* ---------- 日記地圖：真實街道地圖 + 走過才揭開的迷霧 ---------- */
+let DMAP=null, DFOG=null, twFitDone=false;
+const FOG_R_M = 600;                       /* 每個 GPS 點揭開的半徑（公尺） */
+const twGeoLL = () => (S.geo||[]).map(p=>[p[1],p[0]]);
+function initTwMap(){
+  const box=$("twMap");
+  if(!box || DMAP || !window.L) return;
+  DMAP=L.map(box,{zoomControl:false,attributionControl:true}).setView([23.7,121.0],7);
+  L.tileLayer(MAP_CFG.tile,{maxZoom:19,attribution:MAP_CFG.attr}).addTo(DMAP);
+  DFOG=document.createElement("div"); DFOG.className="twfog"; box.appendChild(DFOG);
+  DMAP.on("move zoom moveend zoomend resize",drawFog);
+  const g=twGeoLL();
+  if(g.length) DMAP.fitBounds(L.latLngBounds(g).pad(0.8),{maxZoom:14});
+  setTimeout(()=>{ DMAP.invalidateSize(); drawFog(); },80);
 }
-function twZoomAt(k,cx,cy){
-  const box=$("twMap"); if(!box) return;
-  const r=box.getBoundingClientRect();
-  const fx=(cx-r.left)/r.width, fy=(cy-r.top)/r.height;
-  const px=twView.x+twView.w*fx, py=twView.y+twView.h*fy;
-  const old=twView.w;
-  twView.w=twView.w/k; twClamp();
-  const sc=twView.w/old;
-  twView.x=px-(px-twView.x)*sc;
-  twView.y=py-(py-twView.y)*sc;
-  twClamp(); twApply();
+function drawFog(){
+  if(!DMAP||!DFOG) return;
+  const sz=DMAP.getSize(), w=Math.round(sz.x), h=Math.round(sz.y);
+  const c=DMAP.getCenter();
+  const mPerPx=40075016.686*Math.cos(c.lat*Math.PI/180)/Math.pow(2,DMAP.getZoom()+8);
+  const r=Math.max(8,FOG_R_M/mPerPx);
+  let holes="";
+  twGeoLL().forEach(ll=>{
+    const p=DMAP.latLngToContainerPoint(ll);
+    if(p.x<-r||p.y<-r||p.x>w+r||p.y>h+r) return;
+    holes+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+r.toFixed(1)+'" fill="#000"/>';
+  });
+  DFOG.innerHTML='<svg width="'+w+'" height="'+h+'" xmlns="http://www.w3.org/2000/svg">'
+    +'<defs><mask id="fogmask"><rect width="'+w+'" height="'+h+'" fill="#fff"/>'
+      +'<g filter="url(#fogsoft)">'+holes+'</g></mask>'
+      +'<filter id="fogsoft"><feGaussianBlur stdDeviation="'+(r*0.22).toFixed(1)+'"/></filter></defs>'
+    +'<rect width="'+w+'" height="'+h+'" fill="#79C24E" fill-opacity=".60" mask="url(#fogmask)"/>'
+  +'</svg>';
 }
-function twReset(){ twView={x:TW_BOX.x,y:TW_BOX.y,w:TW_BOX.w,h:TW_BOX.h}; twApply(); }
 function twFitLit(){
-  const g=(S.geo||[]); if(g.length<2) return twReset();
-  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
-  g.forEach(pt=>{ const q=TW_PROJ(pt);
-    x0=Math.min(x0,q[0]); x1=Math.max(x1,q[0]); y0=Math.min(y0,q[1]); y1=Math.max(y1,q[1]); });
-  const pad=26; x0-=pad; y0-=pad; x1+=pad; y1+=pad;
-  const w=Math.max(x1-x0,(y1-y0)*(TW_BOX.w/TW_BOX.h));
-  twView.x=(x0+x1)/2-w/2; twView.w=w; twClamp();
-  twView.y=(y0+y1)/2-twView.h/2; twClamp(); twApply();
+  if(!DMAP) return;
+  const g=twGeoLL();
+  if(g.length) DMAP.fitBounds(L.latLngBounds(g).pad(0.8),{maxZoom:14});
+  else DMAP.setView([23.7,121.0],7);
 }
-(function twGestures(){
-  const box=$("twMap"); if(!box) return;
-  const pts=new Map(); let base=null;
-  const dist=a=>Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);
-  box.addEventListener("pointerdown",e=>{
-    if(e.target.closest(".twzoom")) return;
-    box.setPointerCapture(e.pointerId);
-    pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-    base=null;
-  });
-  box.addEventListener("pointermove",e=>{
-    if(!pts.has(e.pointerId)) return;
-    const prev=pts.get(e.pointerId);
-    pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-    const arr=[...pts.values()];
-    const r=box.getBoundingClientRect();
-    if(arr.length>=2){
-      const d=dist(arr);
-      if(base===null){ base=d; return; }
-      if(base>4){ twZoomAt(d/base,(arr[0].x+arr[1].x)/2,(arr[0].y+arr[1].y)/2); }
-      base=d;
-    } else {
-      twView.x-=(e.clientX-prev.x)/r.width*twView.w;
-      twView.y-=(e.clientY-prev.y)/r.height*twView.h;
-      twClamp(); twApply();
-    }
-  });
-  const up=e=>{ pts.delete(e.pointerId); if(pts.size<2) base=null; };
-  box.addEventListener("pointerup",up);
-  box.addEventListener("pointercancel",up);
-  box.addEventListener("wheel",e=>{ e.preventDefault();
-    twZoomAt(e.deltaY<0?1.16:1/1.16,e.clientX,e.clientY); },{passive:false});
-  box.addEventListener("dblclick",e=>twZoomAt(1.8,e.clientX,e.clientY));
-  $("twIn").onclick=()=>{ const r=box.getBoundingClientRect(); twZoomAt(1.5,r.left+r.width/2,r.top+r.height/2); };
-  $("twOut").onclick=()=>{ const r=box.getBoundingClientRect(); twZoomAt(1/1.5,r.left+r.width/2,r.top+r.height/2); };
-  $("twReset").onclick=twReset;
-})();
 function renderTaiwan(){
   const box=$("twMap"); if(!box) return;
+  initTwMap();
   const lit=litSpots();
-  let glow="",dots="";
-  TW_SPOTS.forEach(sp=>{
-    const q=TW_PROJ([sp.lo,sp.la]), x=q[0], y=q[1];
-    sp._x=x; sp._y=y;
-    if(sp.on){
-      glow+='<circle class="lit" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="30" fill="url(#twG)"/>';
-      const dx = sp.lb==="l" ? -7 : 7;
-      dots+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.6" fill="#FFD98A"/>'
-        +'<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="6.6" fill="none" stroke="#FFD98A" stroke-opacity=".35"/>'
-        +'<text x="'+(x+dx).toFixed(1)+'" y="'+(y+3.4).toFixed(1)+'" font-size="10" fill="#FFE9BC" '
-        +'text-anchor="'+(sp.lb==="l"?"end":"start")+'" font-family="sans-serif">'+sp.n+'</text>';
-    } else {
-      dots+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.2" fill="rgba(255,240,210,.18)"/>';
-    }
-  });
-  /* 真實 GPS 軌跡：每一格走過的座標都亮一點，再連成一條路線 */
-  const geo=(S.geo||[]);
-  let track="",route="";
-  geo.forEach(p=>{
-    const q=TW_PROJ(p);
-    track+='<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="9" fill="url(#twG)"/>'
-      +'<circle cx="'+q[0].toFixed(1)+'" cy="'+q[1].toFixed(1)+'" r="1.6" fill="#FFE7B4"/>';
-  });
-  if(geo.length>1){
-    route='<path d="M'+geo.map(p=>{const q=TW_PROJ(p);return q[0].toFixed(1)+" "+q[1].toFixed(1);}).join(" L ")
-      +'" fill="none" stroke="#F5821F" stroke-width="1.6" stroke-linecap="round" '
-      +'stroke-linejoin="round" opacity=".75" vector-effect="non-scaling-stroke"/>';
-  }
-  let layer=$("twLayer");
-  if(!layer){
-    layer=document.createElement("div"); layer.id="twLayer";
-    layer.style.cssText="position:absolute;inset:0;";
-    box.insertBefore(layer,box.firstChild);
-  }
-  layer.innerHTML='<svg id="twSvg" viewBox="'+twViewStr()+'" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">'
-    +'<defs>'
-      +'<radialGradient id="twG">'
-        +'<stop offset="0" stop-color="#FFD98A" stop-opacity=".85"/>'
-        +'<stop offset="45%" stop-color="#F5821F" stop-opacity=".36"/>'
-        +'<stop offset="100%" stop-color="#F5821F" stop-opacity="0"/>'
-      +'</radialGradient>'
-      +'<linearGradient id="twLand" x1="0" y1="0" x2="0" y2="1">'
-        +'<stop offset="0" stop-color="#241C13"/><stop offset="1" stop-color="#17110B"/>'
-      +'</linearGradient>'
-      +'<clipPath id="twClip"><path d="'+TW_PATH+'"/></clipPath>'
-    +'</defs>'
-    +'<path d="'+TW_PATH+'" fill="url(#twLand)"/>'
-    +'<g clip-path="url(#twClip)">'+glow+track+route+'</g>'
-    +'<path d="'+TW_PATH+'" fill="none" stroke="rgba(255,214,160,.45)" stroke-width="1.1"/>'
-    +dots
-  +'</svg>';
   $("twLit").textContent=lit.length;
   $("twAll").textContent=TW_SPOTS.length;
   $("twPct").textContent=Math.round(lit.length/TW_SPOTS.length*100)+"%";
-  if(!twFitDone && (S.geo||[]).length>1){ twFitDone=true; setTimeout(twFitLit,60); }
+  const lbl=$("twArea");
+  if(lbl) lbl.textContent = lit.length ? lit[lit.length-1].n : "還沒走過";
   const hint=$("twHint");
-  if(hint) hint.textContent = geo.length
-    ? "已記錄 "+geo.length+" 個 GPS 位置點"
+  if(hint) hint.textContent = (S.geo||[]).length
+    ? "已記錄 "+S.geo.length+" 個 GPS 位置點"
     : "還沒有 GPS 記錄。開始一次散步，走過的地方就會亮起來。";
+  if(!twFitDone && (S.geo||[]).length>1){ twFitDone=true; setTimeout(twFitLit,140); }
+  setTimeout(()=>{ if(DMAP){ DMAP.invalidateSize(); drawFog(); } },140);
 }
+(function twBtns(){
+  const a=$("twIn"), b=$("twOut"), c=$("twReset");
+  if(a) a.onclick=()=>DMAP&&DMAP.zoomIn();
+  if(b) b.onclick=()=>DMAP&&DMAP.zoomOut();
+  if(c) c.onclick=twFitLit;
+})();
 function openDay(k){
   modal('<h3>'+k+'</h3><div style="border-radius:14px;overflow:hidden;margin:10px 0;">'
     +'<img src="'+S.photos[k]+'" alt=""></div>'
@@ -3362,7 +3313,7 @@ const STEPS=[
   text:"按下開始散步後，只要經過了別人留下的足跡，就會<b>自動撿起足跡卡</b>。<br><br>結束散步後，可以查看解鎖了哪些圖鑑、遇到了哪些足跡卡。",
   btn:"懂了"},
  {tab:"trail", target:"#btnLeave", title:"現在，真的拍一張看看",
-  text:"這是散步時最重要的動作：拍下牠現在的樣子，留一張足跡在原地。<br><br>這張照片會<b>直接換到牠的卡面上</b>，也會成為今天日記的那一張。走過這裡的人撿到的，就是這張卡。",
+  text:"這是散步時最重要的動作：拍下牠現在的樣子，留一張足跡在原地。<br><br>這張照片會成為<b>這一張足跡卡</b>，也會成為今天日記的那一張。走過這裡的人撿到的，就是它。",
   btn:"拍照留下足跡", act:()=>coachTakeShot(), hold:true},
  {tab:"trail", target:"#myFpList", title:"這張足跡已經留在地圖上了",
   text:"這張照片是你留下的足跡，也會是別人撿到的足跡卡。而這張照片也會進入到你的日記中。",
@@ -3418,7 +3369,6 @@ function applyCoachWalkPhoto(){
   if(!coachWalkPhoto) return;
   const k=today();
   S.photos[k]=coachWalkPhoto;
-  S.dog.photo=coachWalkPhoto;
   if(!S.myFp.some(f=>f.date===k)){
     S.myFp.push({id:Date.now().toString(36),date:k,place:"你留下的足跡",photo:coachWalkPhoto,
       t:new Date().toTimeString().slice(0,5),
@@ -3439,7 +3389,7 @@ function coachEnd(fin){
 /* 導覽結束：給一個真的「完成了」的收尾，而不是一句 toast */
 function playFinale(){
   const f=$("finale");
-  $("finaleName").textContent=(S.dog.name||"牠")+" 的收藏，從今天開始";
+  $("finaleName").textContent=(S.dog.name||"牠")+" 的冒險 從今天開始！";
   f.classList.add("on");
   for(let i=0;i<34;i++){
     const c=document.createElement("i"); c.className="confetti";
@@ -3470,14 +3420,10 @@ function placeCoach(st){
   $("mcover").setAttribute("x",-svw); $("mcover").setAttribute("y",-svh);
   $("mcover").setAttribute("width",svw*3); $("mcover").setAttribute("height",svh*3);
   let r={left:vw/2-120,top:vh/2-30,width:240,height:60};
-  if(el){ el.scrollIntoView({block:"center",behavior:"auto"}); r=el.getBoundingClientRect(); }
+  if(el) el.scrollIntoView({block:"center",behavior:"auto"});
   const pad=8;
-  const hx=r.left-pad, hy=r.top-pad, hw=r.width+pad*2, hh=r.height+pad*2;
-  $("mhole").setAttribute("x",hx); $("mhole").setAttribute("y",hy);
-  $("mhole").setAttribute("width",hw); $("mhole").setAttribute("height",hh);
+  let hx=0,hy=0,hw=0,hh=0;
   const pl=$("coachPulse");
-  pl.style.display="block"; pl.style.left=hx+"px"; pl.style.top=hy+"px";
-  pl.style.width=hw+"px"; pl.style.height=hh+"px";
   const box=$("coachBox");
   const dogName=S.dog.name||"你的狗";
   const demoName = st.dynamic ? dogName : st.demoName;
@@ -3539,8 +3485,20 @@ function placeCoach(st){
     box.style.top=Math.max(TOP,Math.min(t,Math.max(TOP,BOT-bh)))+"px";
     box.style.left=Math.max(12,Math.min(vw-bw-12,r.left+r.width/2-bw/2))+"px";
   };
-  posBox();
-  setTimeout(posBox,400);                    /* 示範照片載入後高度會變，重算一次 */
+  /* 捲動／版面還沒穩定時量到的位置會跑掉，量完再校正兩次 */
+  const syncHole=()=>{
+    if(el) r=el.getBoundingClientRect();
+    hx=r.left-pad; hy=r.top-pad; hw=r.width+pad*2; hh=r.height+pad*2;
+    $("mhole").setAttribute("x",hx); $("mhole").setAttribute("y",hy);
+    $("mhole").setAttribute("width",hw); $("mhole").setAttribute("height",hh);
+    pl.style.display="block"; pl.style.left=hx+"px"; pl.style.top=hy+"px";
+    pl.style.width=hw+"px"; pl.style.height=hh+"px";
+    posBox();
+  };
+  syncHole();
+  requestAnimationFrame(syncHole);
+  setTimeout(syncHole,200);
+  setTimeout(syncHole,450);                  /* 示範照片載入後高度會變，重算一次 */
   $("cSkip").onclick=()=>coachEnd(false);
   $("cNext").onclick=()=>{
     if(st.need && !st.need()){ toast(st.err||"再完成一下"); return; }
