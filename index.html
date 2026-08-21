@@ -791,7 +791,7 @@ p.ddi{font-size:12.5px;color:var(--ink2);background:#FAF6EE;border-radius:11px;
     <div class="box" style="text-align:center;">
       <svg class="ic" viewBox="0 0 24 24" style="width:44px;height:44px;color:var(--orange);margin:0 auto;"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M3 12h18M12 8v13"/><path d="M12 8s-1-4-4-4a2.5 2.5 0 0 0 0 5h4zM12 8s1-4 4-4a2.5 2.5 0 0 1 0 5h-4z"/></svg>
       <h3 id="packState" style="margin-top:6px;justify-content:center;">今天的卡包還沒開</h3>
-      <p style="font-size:12.5px;color:var(--soft);">可開出 100 種品種</p>
+      <p style="font-size:12.5px;color:var(--soft);">可開出 <span id="breedTotal">337</span> 種品種</p>
       <button class="btn pri blk" id="btnFree" style="margin-top:12px;">開啟今日卡包</button>
       <button class="btn blk" id="btnBuy" style="margin-top:9px;">加購一包　NT$50</button>
     </div>
@@ -800,7 +800,7 @@ p.ddi{font-size:12.5px;color:var(--ink2);background:#FAF6EE;border-radius:11px;
 
   <section class="panel" id="p-dex">
     <h2 class="sec">品種圖鑑</h2>
-    <p class="sub" id="dexCount">已收集 0 / 100</p>
+    <p class="sub" id="dexCount">已收集 0 / 337</p>
     <div class="dexbar">
       <button class="on" data-f="all">全部</button>
       <button data-f="own">已收集</button>
@@ -1076,7 +1076,7 @@ const BREEDS = [
 ["黃金獵犬","retriever/golden",0],["拉布拉多","labrador",0],["米克斯","mix",0],["博美","pomeranian",0],
 ["臘腸犬","dachshund",0],["吉娃娃","chihuahua",0],["馬爾濟斯","maltese",0],["西施犬","shihtzu",0],
 ["約克夏","terrier/yorkshire",0],["比熊犬","frise/bichon",0],["迷你雪納瑞","schnauzer/miniature",0],["巴哥","pug",0],
-["米格魯","beagle",0],["邊境牧羊犬","collie/border",0],["哈士奇","husky",0],["德國牧羊犬","germanshepherd",0],
+["米格魯","beagle",0],["邊境牧羊犬","collie/border",0],["哈士奇","husky",0],["德國牧羊犬","german/shepherd",0],
 ["秋田犬","akita",0],["拉薩犬","lhasa",0],["北京犬","pekinese",0],["蝴蝶犬","papillon",0],
 ["傑克羅素梗","terrier/russell",0],["標準貴賓","poodle/standard",0],["迷你貴賓","poodle/miniature",0],["大麥町","dalmatian",0],
 ["拳師犬","boxer",0],["可卡犬","spaniel/cocker",0],["喜樂蒂","sheepdog/shetland",0],["西高地白梗","terrier/westhighland",0],
@@ -1096,8 +1096,213 @@ const BREEDS = [
 ["恩特雷布赫","entlebucher",2],["阿彭策爾","appenzeller",2],["布維耶犬","bouvier",2],["伯瑞犬","briard",2],
 ["比利時瑪利諾","malinois",2],["比利時格羅安達","groenendael",2],["比利時特伏丹","tervuren",3],["芬蘭拉普獵犬","finnish/lapphund",3],
 ["挪威獵麋犬","elkhound/norwegian",3],["挪威布哈德","buhund/norwegian",3],["墨西哥無毛犬","mexicanhairless",3],["棉花面紗犬","cotondetulear",3],
-["非洲野犬","african",3],["豺","dhole",3],["澳洲丁格","dingo",3],["巴仙吉","basenji",3]
-];const R_NAME = ["普通","少見","稀有","傳說"];
+["非洲野犬","african",3],["豺","dhole",3],["澳洲丁格","dingo",3],["巴仙吉","basenji",3],
+/* ---- FCI 擴充：以下為新增品種，接在原 100 種之後，不改動既有編號 ---- */
+["澳洲牧牛犬","cattledog/australian",0],["澳洲卡爾比犬","australian/kelpie",1],["澳洲短尾牧牛犬","stumpytailcattledog",3],
+["長鬚柯利犬","beardedcollie",1],["蘇格蘭牧羊犬（長毛）","rough/collie",0],["蘇格蘭牧羊犬（短毛）","smoothcollie",2],
+["卡迪根威爾斯柯基","corgi/cardigan",1],["比利時拉肯納斯","laekenois",3],["荷蘭牧羊犬","dutchshepherd",2],
+["瑞士白牧羊犬","whiteswissshepherd",1],["阿登牧牛犬","bouvierdesardennes",3],["博塞隆犬","beauceron",1],
+["皮卡第牧羊犬","berger-picard",2],["庇里牛斯牧羊犬","pyreneansheepdog",2],["加泰隆尼亞牧羊犬","catalansheepdog",2],
+["貝加馬斯卡牧羊犬","bergamasco",2],["馬瑞馬牧羊犬","maremmano",2],["波利犬","puli",1],["普米犬","pumi",2],["木迪犬","mudi",2],
+["波蘭低地牧羊犬","polishlowlandsheepdog",2],["波蘭塔特拉牧羊犬","tatrasheepdog",2],["克羅埃西亞牧羊犬","croatiansheepdog",3],
+["南斯拉夫牧羊犬","sarplaninac",2],["卡斯特牧羊犬","karstshepherd",3],["羅馬尼亞米奧里蒂克牧羊犬","mioriticshepherd",3],
+["羅馬尼亞喀爾巴阡牧羊犬","carpathianshepherd",3],["羅馬尼亞布科維納牧羊犬","bucovinashepherd",3],["葡萄牙牧羊犬","portuguesesheepdog",3],
+["荷蘭斯恰潘道斯犬","schapendoes",2],["薩爾路斯狼犬","saarlooswolfdog",2],["捷克狼犬","czechoslovakianwolfdog",1],
+["斯洛伐克楚維奇犬","slovakcuvac",3],["南俄羅斯牧羊犬","southrussianovcharka",3],["波希米亞牧羊犬","bohemianshepherd",3],
+["德國品犬","germanpinscher",1],["奧地利品犬","austrianpinscher",3],["阿芬平斯澈","affenpinscher",1],
+["巨型雪納瑞","schnauzer/giant",1],["標準雪納瑞","standardschnauzer",1],["荷蘭斯莫斯洪德犬","dutchsmoushond",3],
+["俄羅斯黑梗","blackrussianterrier",1],["波爾多犬","doguedebordeaux",1],["那不勒斯獒","neapolitanmastiff",1],
+["卡斯羅","canecorso",0],["西班牙獒","spanishmastiff",2],["庇里牛斯獒","pyreneanmastiff",2],["阿蘭特茹獒","rafeirodoalentejo",3],
+["卡斯楚拉伯雷羅犬","castrolaboreiro",3],["阿根廷杜告","dogoargentino",1],["巴西菲勒","filabrasileiro",2],
+["加那利犬","presacanario",2],["馬約卡鬥牛犬","canedebou",3],["沙皮犬","sharpei",0],["中亞牧羊犬","centralasianshepherd",1],
+["土佐犬","tosa",2],["美國秋田","americanakita",1],["蘭西爾犬","landseer",2],["阿納托利亞牧羊犬","anatolianshepherd",1],
+["坎高犬","kangal",1],["霍夫瓦特犬","hovawart",2],["摩洛哥阿伊迪犬","aidi",3],["烏拉圭西馬龍犬","cimarronuruguayo",3],
+["保加利亞牧羊犬","karakachan",3],["萬能梗","airedale",1],["貝林登梗","terrier/bedlington",2],["邊境梗","terrier/border",1],
+["牛頭梗","bullterrier",0],["迷你牛頭梗","miniaturebullterrier",2],["斯塔福郡鬥牛梗","bullterrier/staffordshire",0],
+["美國斯塔福郡梗","terrier/american",0],["凱恩梗","terrier/cairn",1],["丹第丁蒙梗","terrier/dandie",3],
+["平毛獵狐梗","terrier/fox",1],["剛毛獵狐梗","wirefoxterrier",1],["愛爾蘭梗","terrier/irish",2],
+["凱利藍梗","terrier/kerryblue",2],["湖畔梗","terrier/lakeland",2],["曼徹斯特梗","manchesterterrier",2],
+["諾福克梗","terrier/norfolk",2],["諾威奇梗","terrier/norwich",2],["帕森羅素梗","parsonrussellterrier",1],
+["蘇格蘭梗","terrier/scottish",1],["西里漢梗","terrier/sealyham",3],["澳洲絲毛梗","terrier/silky",2],
+["澳洲梗","terrier/australian",2],["軟毛麥色梗","terrier/wheaten",1],["威爾斯梗","terrier/welsh",2],
+["捷克梗","ceskyterrier",3],["日本梗","japaneseterrier",3],["巴西梗","brazilianterrier",3],["智利梗","chileanterrier",3],
+["德國獵梗","jagdterrier",2],["西藏梗","terrier/tibetan",2],["長毛臘腸犬","longhaireddachshund",1],
+["剛毛臘腸犬","wirehaireddachshund",1],["迷你臘腸犬","miniaturedachshund",0],["格陵蘭犬","greenlanddog",3],
+["加拿大愛斯基摩犬","eskimo",3],["黑色挪威獵麋犬","blacknorwegianelkhound",3],["挪威倫德獵犬","norwegianlundehund",3],
+["耶姆特蘭犬","jamthund",2],["瑞典白獵麋犬","swedishwhiteelkhound",3],["芬蘭獵犬","finnishspitz",2],
+["瑞典拉普獵犬","swedishlapphund",3],["拉普蘭牧畜犬","lapponianherder",3],["冰島牧羊犬","icelandicsheepdog",2],
+["瑞典瓦漢德犬","swedishvallhund",2],["俄歐萊卡","russianeuropeanlaika",3],["西西伯利亞萊卡","westsiberianlaika",2],
+["東西伯利亞萊卡","eastsiberianlaika",3],["卡累利阿熊犬","karelianbeardog",2],["德國狐狸犬","germanspitz",2],
+["荷蘭毛獅犬","keeshond",1],["義大利火山犬","volpinoitaliano",3],["日本狐狸犬","spitz/japanese",1],["甲斐犬","kaiken",2],
+["紀州犬","kishuken",3],["四國犬","shikokuken",3],["北海道犬","hokkaidoken",3],["韓國珍島犬","jindo",2],["台灣犬","taiwandog",1],
+["泰國脊背犬","thairidgeback",2],["中國冠毛犬","chinesecrested",1],["歐亞犬","eurasier",2],["法老王獵犬","pharaohhound",2],
+["加那利波登可","podencocanario",3],["葡萄牙波登可","portuguesepodengo",2],["西西里獵犬","cirnecodelletna",3],
+["秘魯無毛犬","peruvianhairlessdog",2],["卡南犬","canaandog",3],["羅德西亞背脊犬","ridgeback/rhodesian",0],
+["美國獵狐犬","americanfoxhound",2],["哈利犬","harrier",3],["奧達獵犬","otterhound",3],["大藍加斯科尼獵犬","grandbleudegascogne",3],
+["小藍加斯科尼獵犬","petitbleudegascogne",3],["加斯科尼藍矮腿獵犬","bassetbleudegascogne",3],
+["大英法三色獵犬","grandanglofrancaistricolore",3],["大旺代格里芬","grandgriffonvendeen",3],
+["布利凱旺代格里芬","briquetgriffonvendeen",3],["大型旺代巴吉度","grandbassetgriffonvendeen",2],
+["小型旺代巴吉度","petitbassetgriffonvendeen",2],["阿圖瓦獵犬","artoishound",3],["阿列日獵犬","ariegeois",3],
+["普瓦圖獵犬","poitevin",3],["瑞士獵犬","swisshound",3],["瑞士矮腿獵犬","smallswisshound",3],
+["巴伐利亞山地獵犬","bavarianmountainhound",2],["漢諾威獵犬","hanoverianscenthound",3],["德國布拉克","deutschebracke",3],
+["威斯特伐利亞矮腿獵犬","westphaliandachsbracke",3],["阿爾卑斯矮腿獵犬","alpinedachsbracke",3],
+["奧地利黑褐獵犬","austrianblackandtanhound",3],["斯泰里亞剛毛獵犬","styrianhound",3],["義大利獵犬","segugio/italian",2],
+["馬瑞馬獵犬","segugiomaremmano",3],["芬蘭獵犬（史坦德）","finnishhound",3],["哈密爾頓獵犬","hamiltonhound",3],
+["史莫蘭獵犬","smalandhound",3],["德萊佛犬","drever",3],["鄧克獵犬","dunker",3],["哈爾登獵犬","haldenstover",3],
+["海嘉獵犬","hygenhound",3],["波蘭獵犬","polishhound",3],["塞爾維亞獵犬","serbianhound",3],["波士尼亞剛毛獵犬","bosnianhound",3],
+["伊斯特里亞獵犬","istrianhound",3],["西班牙獵犬","spanishhound",3],["川西凡尼亞獵犬","transylvanianhound",3],
+["斯洛伐克獵犬","slovakianhound",3],["普洛特獵犬","hound/plott",2],["德國剛毛指示犬","germanwirehairedpointer",1],
+["德國長毛指示犬","pointer/germanlonghair",2],["大型明斯特蘭德犬","largemunsterlander",2],["小型明斯特蘭德犬","smallmunsterlander",2],
+["波旁布拉克","braquedubourbonnais",3],["法國布拉克","braquefrancais",3],["奧弗涅布拉克","braquedauvergne",3],
+["阿列日布拉克","braquedelariege",3],["聖日耳曼布拉克","braquesaintgermain",3],["法國指示格里芬","griffonkorthals",2],
+["皮卡第獵犬","picardyspaniel",3],["藍皮卡第獵犬","bluepicardyspaniel",3],["龐特奧德梅獵犬","pontaudemerspaniel",3],
+["法國獵犬","frenchspaniel",3],["義大利布拉克","braccoitaliano",2],["義大利斯皮諾內","spinoneitaliano",2],
+["匈牙利剛毛維茲拉","wirehairedvizsla",2],["捷克福斯克","ceskyfousek",3],["葡萄牙指示犬","portuguesepointer",3],
+["布爾戈斯指示犬","perdigueirodeburgos",3],["英國指示犬","englishpointer",0],["愛爾蘭紅白賽特","irishredandwhitesetter",2],
+["斯洛伐克剛毛指示犬","slovakianroughhairedpointer",3],["荷蘭鷓鴣犬","drentsepatrijshond",3],["斯塔比荷犬","stabyhoun",3],
+["平毛尋回犬","retriever/flatcoated",1],["捲毛尋回犬","retriever/curly",2],["乞沙比克灣尋回犬","retriever/chesapeake",1],
+["新斯科細亞誘鴨尋回犬","novascotiaduckdog",1],["美國可卡犬","americancockerspaniel",0],["田野獵犬","fieldspaniel",3],
+["克倫伯獵犬","clumber",3],["美國水獵犬","americanwaterspaniel",3],["西班牙水犬","waterdog/spanish",1],
+["葡萄牙水犬","portuguesewaterdog",1],["法國水犬","barbet",2],["羅曼那水犬","lagottoromagnolo",1],["弗里斯蘭水犬","wetterhoun",3],
+["荷蘭誘鴨犬","kooikerhondje",2],["中型貴賓犬","poodle/medium",1],["波隆那犬","bolognese",3],["哈瓦那犬","havanese",1],
+["小獅子犬","lowchen",3],["西藏獚","tibetanspaniel",2],["日本狆","spaniel/japanese",2],["布魯塞爾格里芬","brusselsgriffon",2],
+["比利時格里芬","belgiangriffon",3],["小布拉班特犬","brabancon",3],["查理士王小獵犬","kingcharlesspaniel",2],
+["俄羅斯玩具犬","russiantoy",2],["布拉格鼠犬","pragerrattler",3],["史奇派克犬","schipperke",2],["格雷伊獵犬","englishgreyhound",0],
+["西班牙靈緹","galgoespanol",2],["匈牙利靈緹","magyaragar",3],["波蘭靈緹","polishgreyhound",3],["阿札瓦克","azawakh",3],
+["斯魯基","sloughi",3],["印度靈緹","greyhound/indian",3],["英國玩具梗","englishtoyterrier",3],
+["大加斯科尼聖東日獵犬","grandgasconsaintongeois",3],["泰國邦考犬","thaibangkaew",3],["哈薩克塔茲犬","kazakhtazy",3],
+["中亞塔伊根犬","taigan",3],["蒙古班豪爾犬","mongolianbankhar",3]
+];/* 圖源對照：dog.ceo 沒有的品種會改用維基百科條目的圖 */
+const WIKI_TITLE = {
+"shiba":"Shiba Inu","poodle/toy":"Poodle (dog)","pembroke":"Pembroke Welsh Corgi",
+"bulldog/french":"French Bulldog","retriever/golden":"Golden Retriever","labrador":"Labrador Retriever",
+"mix":"Mongrel","pomeranian":"Pomeranian dog","dachshund":"Dachshund","chihuahua":"Chihuahua (dog)",
+"maltese":"Maltese dog","shihtzu":"Shih Tzu","terrier/yorkshire":"Yorkshire Terrier",
+"frise/bichon":"Bichon Frise","schnauzer/miniature":"Miniature Schnauzer","pug":"Pug","beagle":"Beagle",
+"collie/border":"Border Collie","husky":"Siberian Husky","german/shepherd":"German Shepherd",
+"akita":"Akita (dog)","lhasa":"Lhasa Apso","pekinese":"Pekingese","papillon":"Papillon dog",
+"terrier/russell":"Jack Russell Terrier","poodle/standard":"Poodle (dog)","poodle/miniature":"Poodle (dog)",
+"dalmatian":"Dalmatian dog","boxer":"Boxer (dog)","spaniel/cocker":"English Cocker Spaniel",
+"sheepdog/shetland":"Shetland Sheepdog","terrier/westhighland":"West Highland White Terrier",
+"bulldog/boston":"Boston Terrier","bulldog/english":"Bulldog","chow":"Chow Chow","samoyed":"Samoyed dog",
+"terrier/toy":"Toy Manchester Terrier","pinscher/miniature":"Miniature Pinscher",
+"malamute":"Alaskan Malamute","rottweiler":"Rottweiler","doberman":"Dobermann","dane/great":"Great Dane",
+"stbernard":"St. Bernard (dog)","mountain/bernese":"Bernese Mountain Dog","pyrenees":"Great Pyrenees",
+"newfoundland":"Newfoundland dog","sheepdog/english":"Old English Sheepdog",
+"australian/shepherd":"Australian Shepherd","weimaraner":"Weimaraner","vizsla":"Vizsla",
+"pointer/german":"German Shorthaired Pointer","setter/english":"English Setter","setter/irish":"Irish Setter",
+"setter/gordon":"Gordon Setter","spaniel/brittany":"Brittany dog",
+"springer/english":"English Springer Spaniel","spaniel/irish":"Irish Water Spaniel",
+"spaniel/welsh":"Welsh Springer Spaniel","spaniel/sussex":"Sussex Spaniel",
+"spaniel/blenheim":"Cavalier King Charles Spaniel","hound/basset":"Basset Hound","whippet":"Whippet",
+"greyhound/italian":"Italian Greyhound","hound/blood":"Bloodhound","hound/english":"English Foxhound",
+"coonhound":"Black and Tan Coonhound","redbone":"Redbone Coonhound","hound/walker":"Treeing Walker Coonhound",
+"bluetick":"Bluetick Coonhound","labradoodle":"Labradoodle","hound/afghan":"Afghan Hound","borzoi":"Borzoi",
+"saluki":"Saluki","wolfhound/irish":"Irish Wolfhound","deerhound/scottish":"Scottish Deerhound",
+"hound/ibizan":"Ibizan Hound","komondor":"Komondor","kuvasz":"Kuvasz",
+"ovcharka/caucasian":"Caucasian Shepherd Dog","mastiff/tibetan":"Tibetan Mastiff",
+"mastiff/bull":"Bullmastiff","mastiff/english":"English Mastiff","leonberg":"Leonberger",
+"mountain/swiss":"Greater Swiss Mountain Dog","entlebucher":"Entlebucher Mountain Dog",
+"appenzeller":"Appenzeller Sennenhund","bouvier":"Bouvier des Flandres","briard":"Briard",
+"malinois":"Malinois dog","groenendael":"Belgian Shepherd","tervuren":"Belgian Shepherd",
+"finnish/lapphund":"Finnish Lapphund","elkhound/norwegian":"Norwegian Elkhound",
+"buhund/norwegian":"Norwegian Buhund","mexicanhairless":"Xoloitzcuintle","cotondetulear":"Coton de Tulear",
+"african":"African wild dog","dhole":"Dhole","dingo":"Dingo","basenji":"Basenji",
+"cattledog/australian":"Australian Cattle Dog","australian/kelpie":"Australian Kelpie",
+"stumpytailcattledog":"Australian Stumpy Tail Cattle Dog","beardedcollie":"Bearded Collie",
+"rough/collie":"Rough Collie","smoothcollie":"Smooth Collie","corgi/cardigan":"Cardigan Welsh Corgi",
+"laekenois":"Belgian Shepherd","dutchshepherd":"Dutch Shepherd","whiteswissshepherd":"White Shepherd",
+"bouvierdesardennes":"Bouvier des Ardennes","beauceron":"Beauceron","berger-picard":"Berger Picard",
+"pyreneansheepdog":"Pyrenean Shepherd","catalansheepdog":"Catalan Sheepdog","bergamasco":"Bergamasco Shepherd",
+"maremmano":"Maremmano-Abruzzese Sheepdog","puli":"Puli dog","pumi":"Pumi","mudi":"Mudi",
+"polishlowlandsheepdog":"Polish Lowland Sheepdog","tatrasheepdog":"Tatra Shepherd Dog",
+"croatiansheepdog":"Croatian Sheepdog","sarplaninac":"Šarplaninac","karstshepherd":"Karst Shepherd",
+"mioriticshepherd":"Romanian Mioritic Shepherd Dog","carpathianshepherd":"Romanian Carpathian Shepherd Dog",
+"bucovinashepherd":"Bucovina Shepherd Dog","portuguesesheepdog":"Portuguese Sheepdog",
+"schapendoes":"Schapendoes","saarlooswolfdog":"Saarloos Wolfdog",
+"czechoslovakianwolfdog":"Czechoslovakian Wolfdog","slovakcuvac":"Slovak Cuvac",
+"southrussianovcharka":"South Russian Ovcharka","bohemianshepherd":"Bohemian Shepherd",
+"germanpinscher":"German Pinscher","austrianpinscher":"Austrian Pinscher","affenpinscher":"Affenpinscher",
+"schnauzer/giant":"Giant Schnauzer","standardschnauzer":"Standard Schnauzer","dutchsmoushond":"Dutch Smoushond",
+"blackrussianterrier":"Black Russian Terrier","doguedebordeaux":"Dogue de Bordeaux",
+"neapolitanmastiff":"Neapolitan Mastiff","canecorso":"Cane Corso","spanishmastiff":"Spanish Mastiff",
+"pyreneanmastiff":"Pyrenean Mastiff","rafeirodoalentejo":"Rafeiro do Alentejo",
+"castrolaboreiro":"Cão de Castro Laboreiro","dogoargentino":"Dogo Argentino","filabrasileiro":"Fila Brasileiro",
+"presacanario":"Perro de Presa Canario","canedebou":"Perro de Presa Mallorquin","sharpei":"Shar Pei",
+"centralasianshepherd":"Central Asian Shepherd Dog","tosa":"Tosa (dog)","americanakita":"American Akita",
+"landseer":"Landseer (dog)","anatolianshepherd":"Anatolian Shepherd","kangal":"Kangal Shepherd Dog",
+"hovawart":"Hovawart","aidi":"Aidi","cimarronuruguayo":"Cimarrón Uruguayo","karakachan":"Karakachan dog",
+"airedale":"Airedale Terrier","terrier/bedlington":"Bedlington Terrier","terrier/border":"Border Terrier",
+"bullterrier":"Bull Terrier","miniaturebullterrier":"Miniature Bull Terrier",
+"bullterrier/staffordshire":"Staffordshire Bull Terrier","terrier/american":"American Staffordshire Terrier",
+"terrier/cairn":"Cairn Terrier","terrier/dandie":"Dandie Dinmont Terrier","terrier/fox":"Smooth Fox Terrier",
+"wirefoxterrier":"Wire Fox Terrier","terrier/irish":"Irish Terrier","terrier/kerryblue":"Kerry Blue Terrier",
+"terrier/lakeland":"Lakeland Terrier","manchesterterrier":"Manchester Terrier",
+"terrier/norfolk":"Norfolk Terrier","terrier/norwich":"Norwich Terrier",
+"parsonrussellterrier":"Parson Russell Terrier","terrier/scottish":"Scottish Terrier",
+"terrier/sealyham":"Sealyham Terrier","terrier/silky":"Silky Terrier","terrier/australian":"Australian Terrier",
+"terrier/wheaten":"Soft-Coated Wheaten Terrier","terrier/welsh":"Welsh Terrier","ceskyterrier":"Cesky Terrier",
+"japaneseterrier":"Japanese Terrier","brazilianterrier":"Brazilian Terrier",
+"chileanterrier":"Chilean Fox Terrier","jagdterrier":"Jagdterrier","terrier/tibetan":"Tibetan Terrier",
+"longhaireddachshund":"Dachshund","wirehaireddachshund":"Dachshund","miniaturedachshund":"Dachshund",
+"greenlanddog":"Greenland Dog","eskimo":"Canadian Eskimo Dog","blacknorwegianelkhound":"Norwegian Elkhound",
+"norwegianlundehund":"Norwegian Lundehund","jamthund":"Jämthund",
+"swedishwhiteelkhound":"Swedish White Elkhound","finnishspitz":"Finnish Spitz",
+"swedishlapphund":"Swedish Lapphund","lapponianherder":"Lapponian Herder",
+"icelandicsheepdog":"Icelandic Sheepdog","swedishvallhund":"Swedish Vallhund",
+"russianeuropeanlaika":"Russo-European Laika","westsiberianlaika":"West Siberian Laika",
+"eastsiberianlaika":"East Siberian Laika","karelianbeardog":"Karelian Bear Dog","germanspitz":"German Spitz",
+"keeshond":"Keeshond","volpinoitaliano":"Volpino Italiano","spitz/japanese":"Japanese Spitz","kaiken":"Kai Ken",
+"kishuken":"Kishu Ken","shikokuken":"Shikoku (dog)","hokkaidoken":"Hokkaido (dog)","jindo":"Korean Jindo",
+"taiwandog":"Formosan Mountain Dog","thairidgeback":"Thai Ridgeback","chinesecrested":"Chinese Crested Dog",
+"eurasier":"Eurasier","pharaohhound":"Pharaoh Hound","podencocanario":"Podenco Canario",
+"portuguesepodengo":"Portuguese Podengo","cirnecodelletna":"Cirneco dell'Etna",
+"peruvianhairlessdog":"Peruvian Hairless Dog","canaandog":"Canaan Dog",
+"ridgeback/rhodesian":"Rhodesian Ridgeback","americanfoxhound":"American Foxhound","harrier":"Harrier (dog)",
+"otterhound":"Otterhound","grandbleudegascogne":"Grand Bleu de Gascogne",
+"petitbleudegascogne":"Petit Bleu de Gascogne","bassetbleudegascogne":"Basset Bleu de Gascogne",
+"grandanglofrancaistricolore":"Grand Anglo-Français Tricolore","grandgriffonvendeen":"Grand Griffon Vendéen",
+"briquetgriffonvendeen":"Briquet Griffon Vendéen","grandbassetgriffonvendeen":"Grand Basset Griffon Vendéen",
+"petitbassetgriffonvendeen":"Petit Basset Griffon Vendéen","artoishound":"Artois Hound","ariegeois":"Ariégeois",
+"poitevin":"Poitevin (dog)","swisshound":"Swiss Hound","smallswisshound":"Small Swiss Hound",
+"bavarianmountainhound":"Bavarian Mountain Hound","hanoverianscenthound":"Hanover Hound",
+"deutschebracke":"Deutsche Bracke","westphaliandachsbracke":"Westphalian Dachsbracke",
+"alpinedachsbracke":"Alpine Dachsbracke","austrianblackandtanhound":"Austrian Black and Tan Hound",
+"styrianhound":"Styrian Coarse-haired Hound","segugio/italian":"Segugio Italiano",
+"segugiomaremmano":"Segugio Maremmano","finnishhound":"Finnish Hound","hamiltonhound":"Hamiltonstövare",
+"smalandhound":"Smålandsstövare","drever":"Drever","dunker":"Dunker","haldenstover":"Halden Hound",
+"hygenhound":"Hygen Hound","polishhound":"Polish Hound","serbianhound":"Serbian Hound",
+"bosnianhound":"Bosnian Coarse-haired Hound","istrianhound":"Istrian Coarse-haired Hound",
+"spanishhound":"Spanish Hound","transylvanianhound":"Transylvanian Hound","slovakianhound":"Slovakian Hound",
+"hound/plott":"Plott Hound","germanwirehairedpointer":"German Wirehaired Pointer",
+"pointer/germanlonghair":"German Longhaired Pointer","largemunsterlander":"Large Münsterländer",
+"smallmunsterlander":"Small Münsterländer","braquedubourbonnais":"Braque du Bourbonnais",
+"braquefrancais":"Braque Français","braquedauvergne":"Braque d'Auvergne","braquedelariege":"Braque de l'Ariège",
+"braquesaintgermain":"Braque Saint-Germain","griffonkorthals":"Korthals Griffon",
+"picardyspaniel":"Picardy Spaniel","bluepicardyspaniel":"Blue Picardy Spaniel",
+"pontaudemerspaniel":"Pont-Audemer Spaniel","frenchspaniel":"French Spaniel","braccoitaliano":"Bracco Italiano",
+"spinoneitaliano":"Spinone Italiano","wirehairedvizsla":"Wirehaired Vizsla","ceskyfousek":"Cesky Fousek",
+"portuguesepointer":"Portuguese Pointer","perdigueirodeburgos":"Burgos Pointer",
+"englishpointer":"Pointer (dog breed)","irishredandwhitesetter":"Irish Red and White Setter",
+"slovakianroughhairedpointer":"Slovakian Rough-haired Pointer","drentsepatrijshond":"Drentse Patrijshond",
+"stabyhoun":"Stabyhoun","retriever/flatcoated":"Flat-coated Retriever",
+"retriever/curly":"Curly-coated Retriever","retriever/chesapeake":"Chesapeake Bay Retriever",
+"novascotiaduckdog":"Nova Scotia Duck Tolling Retriever","americancockerspaniel":"American Cocker Spaniel",
+"fieldspaniel":"Field Spaniel","clumber":"Clumber Spaniel","americanwaterspaniel":"American Water Spaniel",
+"waterdog/spanish":"Spanish Water Dog","portuguesewaterdog":"Portuguese Water Dog","barbet":"Barbet (dog)",
+"lagottoromagnolo":"Lagotto Romagnolo","wetterhoun":"Wetterhoun","kooikerhondje":"Kooikerhondje",
+"poodle/medium":"Poodle (dog)","bolognese":"Bolognese dog","havanese":"Havanese dog","lowchen":"Löwchen",
+"tibetanspaniel":"Tibetan Spaniel","spaniel/japanese":"Japanese Chin","brusselsgriffon":"Griffon Bruxellois",
+"belgiangriffon":"Griffon Bruxellois","brabancon":"Griffon Bruxellois",
+"kingcharlesspaniel":"King Charles Spaniel","russiantoy":"Russian Toy","pragerrattler":"Prague Ratter",
+"schipperke":"Schipperke","englishgreyhound":"Greyhound","galgoespanol":"Spanish Greyhound",
+"magyaragar":"Hungarian Greyhound","polishgreyhound":"Polish Greyhound","azawakh":"Azawakh","sloughi":"Sloughi",
+"greyhound/indian":"Rampur Greyhound","englishtoyterrier":"English Toy Terrier",
+"grandgasconsaintongeois":"Grand Gascon-Saintongeois","thaibangkaew":"Thai Bangkaew Dog",
+"kazakhtazy":"Kazakh Tazy","taigan":"Taigan","mongolianbankhar":"Bankhar Dog",
+};
+const CEO_SLUG = {"shiba":1,"poodle/toy":1,"pembroke":1,"bulldog/french":1,"retriever/golden":1,"labrador":1,"mix":1,"pomeranian":1,"dachshund":1,"chihuahua":1,"maltese":1,"shihtzu":1,"terrier/yorkshire":1,"frise/bichon":1,"schnauzer/miniature":1,"pug":1,"beagle":1,"collie/border":1,"husky":1,"german/shepherd":1,"akita":1,"lhasa":1,"pekinese":1,"papillon":1,"terrier/russell":1,"poodle/standard":1,"poodle/miniature":1,"dalmatian":1,"boxer":1,"spaniel/cocker":1,"sheepdog/shetland":1,"terrier/westhighland":1,"bulldog/boston":1,"bulldog/english":1,"chow":1,"samoyed":1,"terrier/toy":1,"pinscher/miniature":1,"malamute":1,"rottweiler":1,"doberman":1,"dane/great":1,"stbernard":1,"mountain/bernese":1,"pyrenees":1,"newfoundland":1,"sheepdog/english":1,"australian/shepherd":1,"weimaraner":1,"vizsla":1,"pointer/german":1,"setter/english":1,"setter/irish":1,"setter/gordon":1,"spaniel/brittany":1,"springer/english":1,"spaniel/irish":1,"spaniel/welsh":1,"spaniel/sussex":1,"spaniel/blenheim":1,"hound/basset":1,"whippet":1,"greyhound/italian":1,"hound/blood":1,"hound/english":1,"coonhound":1,"redbone":1,"hound/walker":1,"bluetick":1,"labradoodle":1,"hound/afghan":1,"borzoi":1,"saluki":1,"wolfhound/irish":1,"deerhound/scottish":1,"hound/ibizan":1,"komondor":1,"kuvasz":1,"ovcharka/caucasian":1,"mastiff/tibetan":1,"mastiff/bull":1,"mastiff/english":1,"leonberg":1,"mountain/swiss":1,"entlebucher":1,"appenzeller":1,"bouvier":1,"briard":1,"malinois":1,"groenendael":1,"tervuren":1,"finnish/lapphund":1,"elkhound/norwegian":1,"buhund/norwegian":1,"mexicanhairless":1,"cotondetulear":1,"dhole":1,"dingo":1,"basenji":1,"cattledog/australian":1,"australian/kelpie":1,"rough/collie":1,"corgi/cardigan":1,"affenpinscher":1,"schnauzer/giant":1,"sharpei":1,"airedale":1,"terrier/bedlington":1,"terrier/border":1,"bullterrier/staffordshire":1,"terrier/american":1,"terrier/cairn":1,"terrier/dandie":1,"terrier/fox":1,"terrier/irish":1,"terrier/kerryblue":1,"terrier/lakeland":1,"terrier/norfolk":1,"terrier/norwich":1,"terrier/scottish":1,"terrier/sealyham":1,"terrier/silky":1,"terrier/australian":1,"terrier/wheaten":1,"terrier/welsh":1,"terrier/tibetan":1,"eskimo":1,"keeshond":1,"spitz/japanese":1,"ridgeback/rhodesian":1,"otterhound":1,"segugio/italian":1,"hound/plott":1,"pointer/germanlonghair":1,"retriever/flatcoated":1,"retriever/curly":1,"retriever/chesapeake":1,"clumber":1,"waterdog/spanish":1,"poodle/medium":1,"havanese":1,"spaniel/japanese":1,"brabancon":1,"schipperke":1,"greyhound/indian":1};
+const R_NAME = ["普通","少見","稀有","傳說"];
 const R_PT = [1,3,5,10];
 const PACK_ODDS = [0.62,0.26,0.095,0.025];
 const STICKERS = ["★","✦","✧","❖","❋","✿","◆","●","▲","✚"];
@@ -1446,6 +1651,10 @@ const PIC = (function(){
   const CK="radogPix";
   let cache={};
   try{ cache=JSON.parse(localStorage.getItem(CK)||"{}"); }catch(e){ cache={}; }
+  /* 舊版用過錯誤的 slug（dog.ceo 實際是 german/shepherd），清掉殘留的壞資料 */
+  const DEAD_SLUGS=["germanshepherd"];
+  DEAD_SLUGS.forEach(k=>{ if(cache[k]!==undefined){ delete cache[k];
+    try{ localStorage.setItem(CK,JSON.stringify(cache)); }catch(e){} } });
   let dirty=false;
   setInterval(()=>{ if(dirty){ dirty=false;
     try{ localStorage.setItem(CK,JSON.stringify(cache)); }catch(e){} } },1500);
@@ -1504,7 +1713,43 @@ const PIC = (function(){
       fetchOne(job.slug,0);
     }
   }
+  /* 圖源二：維基百科。dog.ceo 只有 120 幾個品種（Stanford Dogs Dataset），
+     FCI 三百多種大部分它沒有。維基的 REST summary 有開 CORS，可直接在前端取縮圖。
+     順序：dog.ceo →（失敗或本來就沒有）維基標題 → 維基搜尋 → 保底插畫。 */
+  let wikiOf={};                      /* slug -> 維基條目標題（英文） */
+  let hasCeo={};                      /* slug -> 1，dog.ceo 真的有的品種 */
+  const NO_DOGCEO={};                 /* slug -> 1，實測 dog.ceo 沒有，之後直接走維基 */
+  function setWiki(m,ceoSet){ wikiOf=m||{}; if(ceoSet) hasCeo=ceoSet; }
+  function wikiPic(slug,cb){
+    const t=wikiOf[slug];
+    if(!t){ cb(""); return; }
+    fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(t.replace(/ /g,"_")))
+      .then(r=>r.ok?r.json():Promise.reject(new Error("wiki "+r.status)))
+      .then(d=>{
+        const u=(d.thumbnail&&d.thumbnail.source)||(d.originalimage&&d.originalimage.source)||"";
+        if(u) cb(u.replace(/\/\d+px-/,"/480px-")); else throw new Error("no img");
+      })
+      .catch(()=>wikiSearch(t,cb));
+  }
+  /* 標題對不上（改名／重導失效）時，用搜尋撈第一筆有圖的結果，自動修正 */
+  function wikiSearch(title,cb){
+    fetch("https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*"
+      +"&generator=search&gsrlimit=1&gsrsearch="+encodeURIComponent(title+" dog breed")
+      +"&prop=pageimages&piprop=thumbnail&pithumbsize=480")
+      .then(r=>r.json())
+      .then(d=>{
+        const pg=d&&d.query&&d.query.pages;
+        let u="";
+        if(pg) for(const k in pg){ if(pg[k].thumbnail&&pg[k].thumbnail.source){ u=pg[k].thumbnail.source; break; } }
+        cb(u);
+      })
+      .catch(()=>cb(""));
+  }
   function fetchOne(slug,tries){
+    /* 不在 dog.ceo 名單內就別浪費一次往返，直接問維基 */
+    if((NO_DOGCEO[slug] || !hasCeo[slug]) && wikiOf[slug]){
+      wikiPic(slug,u=>done(slug,u||"")); return;
+    }
     fetch("https://dog.ceo/api/breed/"+slug+"/images/random")
       .then(r=>r.json())
       .then(d=>{
@@ -1514,8 +1759,14 @@ const PIC = (function(){
       .catch(err=>{
         stat.lastErr=String((err&&err.message)||err).slice(0,140);
         if(tries<2) setTimeout(()=>fetchOne(slug,tries+1), 400*(tries+1));
-        else { miss++; if(miss>=6){ offline=true; if(miss>=14) hardBlock=true; }
-               done(slug,""); }  /* 一定要收尾，否則佇列會卡死 */
+        else {
+          /* dog.ceo 徹底失敗 → 再試維基，真的都沒有才發保底圖 */
+          if(wikiOf[slug]){ NO_DOGCEO[slug]=1;
+            wikiPic(slug,u=>{ if(!u){ miss++; if(miss>=6){ offline=true; if(miss>=14) hardBlock=true; } }
+                              done(slug,u||""); });
+            return; }
+          miss++; if(miss>=6){ offline=true; if(miss>=14) hardBlock=true; }
+          done(slug,""); }  /* 一定要收尾，否則佇列會卡死 */
       });
   }
   /* 判定離線後，把還在排隊的一次全部發保底圖：
@@ -1581,7 +1832,7 @@ const PIC = (function(){
     q:queue.length, run:running, off:offline, wait:Object.keys(waiting).length}; }
   function isFb(u){ return !!u && u.indexOf("data:image/svg")===0; }
   return {load:load,get:get,img:img,fail:fail,put:put,reset:reset,
-          setNames:setNames,onFixed:onFixed,stats:stats,isFb:isFb,
+          setNames:setNames,setWiki:setWiki,onFixed:onFixed,stats:stats,isFb:isFb,
           blocked:()=>hardBlock};
 })();
 window.PIC=PIC;
@@ -3299,6 +3550,7 @@ function renderAll(){ renderCard(); renderPack(); renderDex(); renderDiary(); re
    再用低優先度慢慢補齊 100 種圖鑑照片。使用者每一格都會有狗。 */
 function preloadPhotos(){
   const nm={}; BREEDS.forEach(b=>{ nm[b[1]]=b[0]; }); PIC.setNames(nm);
+  PIC.setWiki(WIKI_TITLE, CEO_SLUG);
   PIC.onFixed(()=>{ dexRefreshSoon(); mapRefreshSoon(); });
   const bi=breedIdx(S.dog.breed);
   if(bi>=0) PIC.load(BREEDS[bi][1],null,0);
