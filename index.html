@@ -1723,11 +1723,18 @@ const PIC = (function(){
   function wikiPic(slug,cb){
     const t=wikiOf[slug];
     if(!t){ cb(""); return; }
-    fetch("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(t.replace(/ /g,"_")))
+    /* 改用 api.php 直接跟維基要 480px 縮圖：
+       舊版是抓 REST summary 再把網址裡的 "320px-" 手動換成 "480px-"，
+       但 Wikimedia 縮圖伺服器不做放大，原檔小於 480px 的條目（冷門 FCI 品種很多）
+       換出來的網址是 404，卡面就變破圖。api.php 會回傳實際存在的尺寸，
+       而且順便處理條目重導向（redirects=1）。 */
+    fetch("https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1"
+      +"&prop=pageimages&piprop=thumbnail&pithumbsize=480&titles="+encodeURIComponent(t))
       .then(r=>r.ok?r.json():Promise.reject(new Error("wiki "+r.status)))
       .then(d=>{
-        const u=(d.thumbnail&&d.thumbnail.source)||(d.originalimage&&d.originalimage.source)||"";
-        if(u) cb(u.replace(/\/\d+px-/,"/480px-")); else throw new Error("no img");
+        const pg=d&&d.query&&d.query.pages; let u="";
+        if(pg) for(const k in pg){ if(pg[k].thumbnail&&pg[k].thumbnail.source){ u=pg[k].thumbnail.source; break; } }
+        if(u) cb(u); else throw new Error("no img");
       })
       .catch(()=>wikiSearch(t,cb));
   }
@@ -1808,10 +1815,15 @@ const PIC = (function(){
   }
   function fail(el){
     const slug=el.getAttribute("data-slug");
-    if(!slug || el.dataset.retried) return;
-    el.dataset.retried="1";
+    if(!slug) return;
+    const n=+(el.dataset.retried||0);
     delete cache[slug]; dirty=true;
-    load(slug,u=>{ if(u && el.isConnected) el.src=u; },0);
+    stat.failSlug[slug]=1;
+    /* 重抓一次還是壞掉就直接換保底插畫，絕不把破圖留在卡面上 */
+    if(n>=1){ el.onerror=null; el.src=placeholder(slug); return; }
+    el.dataset.retried=String(n+1);
+    load(slug,u=>{ if(!el.isConnected) return;
+      if(u) el.src=u; else { el.onerror=null; el.src=placeholder(slug); } },0);
   }
   function reset(){ cache={}; for(const k in fb) delete fb[k]; miss=0; offline=false;
     stat.ok=0; stat.failSlug={}; stat.lastErr="";
