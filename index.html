@@ -305,8 +305,8 @@ label.fld input:focus,label.fld select:focus{outline:2px solid var(--orange);out
 
 /* coach */
 .coach{position:fixed;inset:0;z-index:88;display:none;pointer-events:none;}
-/* 教學進行中鎖住整頁捲動：使用者一滑動，挖出來的洞就會跟目標對不上 */
-html.coaching,body.coaching{overflow:hidden!important;touch-action:none;}
+/* 教學進行中鎖住捲動：用攔截 touchmove 的方式，不能改 overflow——
+   iOS 一旦把 html/body 設成 overflow:hidden，捲動位置會被歸零，目標會整個跑出畫面。 */
 .coach.on{display:block;}
 .coach svg.cmask{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
 .coachbox{pointer-events:auto;}
@@ -3019,7 +3019,43 @@ function litSpots(){
 /* ---------- 日記地圖：真實街道地圖 + 走過才揭開的迷霧 ---------- */
 let DMAP=null, DFOG=null, twFitDone=false;
 const FOG_R_M = 600;                       /* 每個 GPS 點揭開的半徑（公尺） */
-const twGeoLL = () => (S.geo||[]).map(p=>[p[1],p[0]]);
+let FOG_DEMO=null, FOG_N=0, fogTimer=null;
+const twGeoLL = () => FOG_DEMO ? FOG_DEMO.slice(0,FOG_N) : (S.geo||[]).map(p=>[p[1],p[0]]);
+/* 教學專用：沒有真實 GPS 記錄時，畫一條看起來像散步的路線 */
+function fogDemoPath(){
+  const c = MAP_ME || (S.geo&&S.geo.length ? [S.geo[0][1],S.geo[0][0]] : MAP_CFG.center);
+  const out=[]; const N=54;
+  for(let i=0;i<N;i++){
+    const t=i/(N-1), a=t*Math.PI*2.4;
+    const rr=0.0042*(0.45+t*0.75);
+    out.push([ c[0]+Math.sin(a)*rr*0.72 + t*0.0016,
+               c[1]+Math.cos(a)*rr      - t*0.0011 ]);
+  }
+  return out;
+}
+/* 縮時解鎖：整條路線一步一步把綠霧揭開，只有教學會播 */
+function playFogDemo(){
+  initTwMap();
+  if(!DMAP) return;
+  clearInterval(fogTimer);
+  const base=(S.geo&&S.geo.length>6) ? S.geo.map(p=>[p[1],p[0]]) : fogDemoPath();
+  FOG_DEMO=base; FOG_N=0; drawFog();
+  DMAP.invalidateSize();
+  DMAP.flyToBounds(L.latLngBounds(base).pad(0.45),{maxZoom:15,duration:1.0});
+  setTimeout(()=>{
+    let i=0;
+    fogTimer=setInterval(()=>{
+      FOG_N=Math.min(base.length,++i);
+      drawFog();
+      if(i>=base.length) clearInterval(fogTimer);
+    },55);
+  },900);
+}
+function stopFogDemo(){
+  clearInterval(fogTimer); fogTimer=null;
+  FOG_DEMO=null; FOG_N=0;
+  if(DMAP){ drawFog(); twFitLit(); }
+}
 function initTwMap(){
   const box=$("twMap");
   if(!box || DMAP || !window.L) return;
@@ -3362,6 +3398,11 @@ const STEPS=[
   title:"每天一張，就是一本日記",
   text:"每天散步拍的照片都會自動存進當天的格子，記下牠每天的樣子，也記下你們一起去過的地方。",
   btn:"我知道了"},
+ {tab:"diary", target:"#twMap", pre:()=>{ renderDiary(); setTimeout(playFogDemo,260); },
+  title:"走過的地方，會一塊一塊亮起來",
+  text:"日記下面這張是真實地圖。沒去過的地方蓋著綠霧，<b>你走過哪裡就揭開哪裡</b>。"
+      +"<br><br>下面正在播的是縮時：一趟散步能開多少，你看得到。",
+  btn:"太爽了", onNext:()=>stopFogDemo(), after:()=>stopFogDemo()},
  {tab:"badge", target:"#badgeWrap", title:"散步和收藏都會累積成就",
   text:"熬夜狗狗、海灘狗狗、長跑狗狗、社交狗狗…每一枚章都是一件不同的事，章面上直接印著要達成的數字。<br><br>"
       +"<b style=\'color:#C05F0A;\'>這裡目前是陽春版</b>：只放了幾個基本系列讓你先看得懂結構。"
@@ -3406,7 +3447,7 @@ let coachActive=false, coachIdx=0;
 function coachStart(){ coachActive=true; coachIdx=0; coachShow(); }
 function coachNext(){ coachIdx++; if(coachIdx>=STEPS.length) return coachEnd(); coachShow(); }
 function coachEnd(fin){
-  coachActive=false; coachWaitShot=false; coachLock(false);
+  coachActive=false; coachWaitShot=false; coachLock(false); stopFogDemo();
   $("coach").classList.remove("on"); $("coachPulse").style.display="none";
   S.seen=true; save(); renderLeave();
   if(fin) playFinale(); else toast("開始你的收藏吧");
@@ -3434,10 +3475,21 @@ function coachShow(){
   setTimeout(()=>placeCoach(st),120);
   if(st.flashIdx){ const i=st.flashIdx(); if(i>=0) setTimeout(()=>flashDex([i]),300); }
 }
-let coachSyncFn=null;
-function coachLock(on){
-  document.documentElement.classList.toggle("coaching",!!on);
-  document.body.classList.toggle("coaching",!!on);
+let coachSyncFn=null, coachScrollLocked=false;
+function coachLock(on){ coachScrollLocked=!!on; }
+function coachBlockScroll(e){
+  if(!coachScrollLocked) return;
+  if(e.target && e.target.closest && e.target.closest(".coachbox")) return;
+  e.preventDefault();
+}
+document.addEventListener("touchmove",coachBlockScroll,{passive:false});
+document.addEventListener("wheel",coachBlockScroll,{passive:false});
+/* 元素在 fixed 容器裡（tab bar、拍照鈕）就不該去捲頁面 */
+function isFixedEl(el){
+  for(let n=el;n&&n!==document.body;n=n.parentElement){
+    if(getComputedStyle(n).position==="fixed") return true;
+  }
+  return false;
 }
 /* 萬一還是有東西捲動（內層容器），洞跟著跑，不要脫鉤 */
 window.addEventListener("scroll",()=>{
@@ -3454,15 +3506,19 @@ function placeCoach(st){
   $("mcover").setAttribute("x",-svw); $("mcover").setAttribute("y",-svh);
   $("mcover").setAttribute("width",svw*3); $("mcover").setAttribute("height",svh*3);
   let r={left:vw/2-120,top:vh/2-30,width:240,height:60};
-  if(el){
-    coachLock(false);                        /* 先解鎖才捲得動 */
-    const rc=el.getBoundingClientRect();
-    const fixed = rc.top > vh*0.55;          /* 底部的固定元素（tab bar 等）不用捲 */
-    if(!fixed){
-      const want=Math.max(70, vh*0.16);      /* 把目標帶到畫面上方，下面留給說明框 */
-      window.scrollTo(0, Math.max(0, window.scrollY + rc.top - want));
+  const wantTop=Math.max(70, vh*0.16);       /* 把目標帶到畫面上方，下面留給說明框 */
+  const bringIntoView=(force)=>{
+    if(!el || isFixedEl(el)) return;
+    for(let k=0;k<4;k++){
+      const rc=el.getBoundingClientRect();
+      if(!force && rc.top>=8 && rc.bottom<=vh-8) return;   /* 已經看得到就別亂捲 */
+      const d=rc.top-wantTop;
+      if(Math.abs(d)<2) return;
+      window.scrollBy(0,d);                  /* 用相對位移＋重新量測，一定會收斂 */
     }
-  }
+  };
+  coachLock(false);
+  bringIntoView(true);
   coachLock(true);
   const pad=8;
   let hx=0,hy=0,hw=0,hh=0;
@@ -3529,7 +3585,11 @@ function placeCoach(st){
   };
   /* 捲動／版面還沒穩定時量到的位置會跑掉，量完再校正兩次 */
   const syncHole=()=>{
-    if(el) r=el.getBoundingClientRect();
+    if(el){
+      /* 版面稍後才長高（圖片載入、地圖初始化）時，目標可能被推出畫面，這裡自我修復 */
+      coachLock(false); bringIntoView(false); coachLock(true);
+      r=el.getBoundingClientRect();
+    }
     hx=r.left-pad; hy=r.top-pad; hw=r.width+pad*2; hh=r.height+pad*2;
     $("mhole").setAttribute("x",hx); $("mhole").setAttribute("y",hy);
     $("mhole").setAttribute("width",hw); $("mhole").setAttribute("height",hh);
