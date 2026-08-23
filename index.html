@@ -305,6 +305,8 @@ label.fld input:focus,label.fld select:focus{outline:2px solid var(--orange);out
 
 /* coach */
 .coach{position:fixed;inset:0;z-index:88;display:none;pointer-events:none;}
+/* 教學進行中鎖住整頁捲動：使用者一滑動，挖出來的洞就會跟目標對不上 */
+html.coaching,body.coaching{overflow:hidden!important;touch-action:none;}
 .coach.on{display:block;}
 .coach svg.cmask{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
 .coachbox{pointer-events:auto;}
@@ -2279,16 +2281,32 @@ function dexSlotHtml(i){
     +'<div class="ss">'+svg("star","fill").repeat(b[2]+1)+'</div></div>';
 }
 /* 一格的完整「填入」流程：挖空槽 → 卡片放大現身 → 收縮鑲進去 → 撞擊回彈 */
-function flyIntoSlot(i,fast){
-  const T = fast ? {scroll:400,pop:.42,hold:620,press:.55,land:1210}
-                 : {scroll:520,pop:.5, hold:900,press:.7, land:1660};
+/* 捲動（尤其是 iOS 的慣性捲動）不一定在固定時間內停下來。
+   量到還在動的座標，飛入的卡就會鑲歪、甚至還沒鑲完就跳下一張。
+   這裡改成「盯著目標格子的位置，真的不動了才開始動畫」。 */
+function waitScrollSettle(sel,cb,maxMs){
+  const t0=performance.now(); let last=null, still=0;
+  const tick=()=>{
+    const el=document.querySelector(sel);
+    if(!el){ cb(null); return; }
+    const y=Math.round(el.getBoundingClientRect().top);
+    if(last!==null && y===last) still++; else still=0;
+    last=y;
+    if(still>=3 || performance.now()-t0>(maxMs||1200)){ cb(el); return; }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+function flyIntoSlot(i,fast,onDone){
+  const T = fast ? {pop:.42,hold:620,press:.55,land:1210,seat:900}
+                 : {pop:.5, hold:900,press:.7, land:1660,seat:950};
+  const fin=()=>{ if(onDone) onDone(); };
   const el=document.querySelector('.slot[data-i="'+i+'"]');
-  if(!el){ dexPending.delete(i); renderDex(); return; }
+  if(!el){ dexPending.delete(i); renderDex(); fin(); return; }
   el.classList.add("socket");
   el.scrollIntoView({behavior:"smooth",block:"center"});
-  dexAnimTimers.push(setTimeout(()=>{
-    const cur=document.querySelector('.slot[data-i="'+i+'"]');
-    if(!cur){ dexPending.delete(i); renderDex(); return; }
+  waitScrollSettle('.slot[data-i="'+i+'"]',(cur)=>{
+    if(!cur){ dexPending.delete(i); renderDex(); fin(); return; }
     const r=cur.getBoundingClientRect(), vw=innerWidth, vh=innerHeight;
     const fly=document.createElement("div");
     fly.className="dexfly";
@@ -2311,11 +2329,13 @@ function flyIntoSlot(i,fast){
     dexAnimTimers.push(setTimeout(()=>{     /* 落座：換成真的格子並回彈 */
       fly.remove();
       dexPending.delete(i); renderDex();
-      const fin=document.querySelector('.slot[data-i="'+i+'"]');
-      if(fin){ fin.classList.add("seated");
-        dexAnimTimers.push(setTimeout(()=>fin.classList.remove("seated"),950)); }
+      const seat=document.querySelector('.slot[data-i="'+i+'"]');
+      if(seat){ seat.classList.add("seated");
+        dexAnimTimers.push(setTimeout(()=>seat.classList.remove("seated"),T.seat)); }
+      /* 回彈完整播完才換下一張 */
+      dexAnimTimers.push(setTimeout(fin,T.seat+180));
     },T.land));
-  },T.scroll));
+  },1400);
 }
 function flashDex(idxs){
   dexAnimTimers.forEach(clearTimeout); dexAnimTimers=[];
@@ -2330,11 +2350,16 @@ function flashDex(idxs){
   }
   renderDex();
   const skip=$("dexSkip"); skip.classList.add("on");
-  /* 每一格都要完整跑完「飛入→壓進去→回彈」才換下一張，不能提前切走 */
-  const fast=idxs.length>4, STEP=fast?2700:3200;
-  idxs.forEach((i,k)=>dexAnimTimers.push(setTimeout(()=>flyIntoSlot(i,fast), k*STEP)));
-  dexAnimTimers.push(setTimeout(()=>skip.classList.remove("on"),
-    (idxs.length-1)*STEP+(fast?2600:3150)));
+  /* 每一格都要完整跑完「飛入→壓進去→回彈」才換下一張。
+     改用串接（前一張回報結束才開始下一張），不再用固定時距硬排， */
+  const fast=idxs.length>4;
+  let k=0;
+  const runNext=()=>{
+    if(k>=idxs.length){ skip.classList.remove("on"); return; }
+    const i=idxs[k++];
+    flyIntoSlot(i,fast,()=>dexAnimTimers.push(setTimeout(runNext,260)));
+  };
+  runNext();
 }
 function skipDexAnim(){
   dexAnimTimers.forEach(clearTimeout); dexAnimTimers=[];
@@ -3381,7 +3406,7 @@ let coachActive=false, coachIdx=0;
 function coachStart(){ coachActive=true; coachIdx=0; coachShow(); }
 function coachNext(){ coachIdx++; if(coachIdx>=STEPS.length) return coachEnd(); coachShow(); }
 function coachEnd(fin){
-  coachActive=false; coachWaitShot=false;
+  coachActive=false; coachWaitShot=false; coachLock(false);
   $("coach").classList.remove("on"); $("coachPulse").style.display="none";
   S.seen=true; save(); renderLeave();
   if(fin) playFinale(); else toast("開始你的收藏吧");
@@ -3409,6 +3434,15 @@ function coachShow(){
   setTimeout(()=>placeCoach(st),120);
   if(st.flashIdx){ const i=st.flashIdx(); if(i>=0) setTimeout(()=>flashDex([i]),300); }
 }
+let coachSyncFn=null;
+function coachLock(on){
+  document.documentElement.classList.toggle("coaching",!!on);
+  document.body.classList.toggle("coaching",!!on);
+}
+/* 萬一還是有東西捲動（內層容器），洞跟著跑，不要脫鉤 */
+window.addEventListener("scroll",()=>{
+  if(coachActive && $("coach").classList.contains("on") && coachSyncFn) coachSyncFn();
+},true);
 function placeCoach(st){
   const el=document.querySelector(st.target);
   const vw=window.innerWidth, vh=window.innerHeight;
@@ -3420,7 +3454,16 @@ function placeCoach(st){
   $("mcover").setAttribute("x",-svw); $("mcover").setAttribute("y",-svh);
   $("mcover").setAttribute("width",svw*3); $("mcover").setAttribute("height",svh*3);
   let r={left:vw/2-120,top:vh/2-30,width:240,height:60};
-  if(el) el.scrollIntoView({block:"center",behavior:"auto"});
+  if(el){
+    coachLock(false);                        /* 先解鎖才捲得動 */
+    const rc=el.getBoundingClientRect();
+    const fixed = rc.top > vh*0.55;          /* 底部的固定元素（tab bar 等）不用捲 */
+    if(!fixed){
+      const want=Math.max(70, vh*0.16);      /* 把目標帶到畫面上方，下面留給說明框 */
+      window.scrollTo(0, Math.max(0, window.scrollY + rc.top - want));
+    }
+  }
+  coachLock(true);
   const pad=8;
   let hx=0,hy=0,hw=0,hh=0;
   const pl=$("coachPulse");
@@ -3474,16 +3517,15 @@ function placeCoach(st){
       if(t) t.innerHTML=fpCardInner(fake,u);
     },0);
   }
+  /* 說明框只有兩個位置：貼畫面最上或貼畫面最下（避開 tab bar）。
+     不再跟著目標浮動，眼睛不用每一步重新找它在哪。 */
   const posBox=()=>{
     const bh=box.offsetHeight, bw=box.offsetWidth;
-    const TOP=12, BOT=vh-78;                 /* 底部保留 tab bar 空間 */
-    const sBelow=BOT-(hy+hh+14), sAbove=(hy-14)-TOP;
-    let t;
-    if(bh<=sBelow)      t=hy+hh+14;          /* 放洞下面 */
-    else if(bh<=sAbove) t=hy-14-bh;          /* 放洞上面 */
-    else t=(sAbove>=sBelow)?TOP:BOT-bh;      /* 都塞不下 → 選空間大的那邊貼齊 */
-    box.style.top=Math.max(TOP,Math.min(t,Math.max(TOP,BOT-bh)))+"px";
-    box.style.left=Math.max(12,Math.min(vw-bw-12,r.left+r.width/2-bw/2))+"px";
+    const TOP=12, BOT=vh-78;
+    const holeMid=hy+hh/2;
+    const toTop = holeMid > vh*0.52;         /* 目標在下半 → 說明框貼上緣，反之貼下緣 */
+    box.style.top=(toTop?TOP:Math.max(TOP,BOT-bh))+"px";
+    box.style.left=Math.max(12,(vw-bw)/2)+"px";
   };
   /* 捲動／版面還沒穩定時量到的位置會跑掉，量完再校正兩次 */
   const syncHole=()=>{
@@ -3495,6 +3537,7 @@ function placeCoach(st){
     pl.style.width=hw+"px"; pl.style.height=hh+"px";
     posBox();
   };
+  coachSyncFn=syncHole;
   syncHole();
   requestAnimationFrame(syncHole);
   setTimeout(syncHole,200);
@@ -3504,8 +3547,8 @@ function placeCoach(st){
     if(st.need && !st.need()){ toast(st.err||"再完成一下"); return; }
     if(st.onNext) st.onNext();
     if(st.after) st.after();
-    if(st.act){ $("coach").classList.remove("on"); $("coachPulse").style.display="none"; st.act(); return; }
-    if(st.hold){ $("coach").classList.remove("on"); $("coachPulse").style.display="none"; return; }
+    if(st.act){ coachLock(false); $("coach").classList.remove("on"); $("coachPulse").style.display="none"; st.act(); return; }
+    if(st.hold){ coachLock(false); $("coach").classList.remove("on"); $("coachPulse").style.display="none"; return; }
     if(st.last) return coachEnd(true);
     coachNext();
   };
