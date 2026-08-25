@@ -893,7 +893,6 @@ p.ddi{font-size:12.5px;color:var(--ink2);background:#FAF6EE;border-radius:11px;
           <button type="button" class="rs" id="twReset">全島</button>
         </div>
       </div>
-      <div class="twstat"><b id="twPct">0%</b><small>已點亮 <span id="twLit">0</span> / <span id="twAll">0</span> 個地區</small></div>
       <p style="font-size:11px;color:var(--soft);margin-top:6px;" id="twHint"></p>
       <div class="pv"><b>正式版</b><span>目前已串接 GPS：<em>每次散步走過的座標都會被記錄</em>並點亮對應地區。正式版會再把完整路線一條一條畫上去。</span></div>
     </div>
@@ -1099,10 +1098,10 @@ const IC = {
 const svg = (k, cls) => '<svg class="ic '+(cls||"")+'" viewBox="0 0 24 24">'+IC[k]+'</svg>';
 
 /* ---------- 分頁 ---------- */
-const TABS = [["card","卡片","card"],["pack","抽卡","pack"],["dex","圖鑑","dex"],
-              ["trail","足跡","paw"],["diary","日記","diary"],["badge","徽章","medal"]];
+const TABS = [["trail","足跡","paw"],["dex","圖鑑","dex"],["diary","日記","diary"],
+              ["pack","抽卡","pack"],["badge","徽章","medal"],["card","卡片","card"]];
 $("tabs").innerHTML = TABS.map((t,i)=>
-  '<button data-t="'+t[0]+'"'+(i===0?' class="on"':'')+'>'+svg(t[2])+'<span class="dot"></span><span class="lb">'+t[1]+'</span></button>'
+  '<button data-t="'+t[0]+'"'+(t[0]==="card"?' class="on"':'')+'>'+svg(t[2])+'<span class="dot"></span><span class="lb">'+t[1]+'</span></button>'
 ).join("");
 
 /* ---------- 品種 ---------- */
@@ -2604,10 +2603,12 @@ function mkMyFpCard(f){
     place:(f&&f.place)||"你留下的足跡",t:(f&&f.t)||"",
     slug:bi>=0?BREEDS[bi][1]:"shiba",photo:(f&&f.photo)||S.dog.photo||""};
 }
+const isWalking = () => { try{ return watchId!==null; }catch(e){ return false; } };
 function renderLeave(){
   const used=myFpToday(), left=Math.max(0,FP_PER_DAY-used);
   const n=$("fpLeft"); if(n) n.textContent=used;
-  const b=$("btnLeave"); if(b) b.classList.toggle("off", left<=0);
+  /* 足跡是「散步途中」留下的，沒開始散步就不該能留 */
+  const b=$("btnLeave"); if(b) b.classList.toggle("off", left<=0 || !isWalking());
   const box=$("myFpList"); if(!box) return;
   /* 今天留下的那幾張，用照片本身直接陳列在「今天留下的足跡（n/5）」下面 */
   const mine=S.myFp.filter(f=>f.date===today());
@@ -2623,6 +2624,13 @@ function renderLeave(){
     row.appendChild(d);
   }
 }
+$("btnLeave").addEventListener("click",e=>{
+  if(coachActive) return;                       /* 教學流程自己控制 */
+  if(!isWalking()){
+    e.preventDefault(); e.stopPropagation();
+    toast("先按「開始散步」，才能在路上留下足跡");
+  }
+},true);
 $("fpPhoto").onchange=e=>{
   const file=e.target.files[0]; e.target.value="";
   if(!file){ if(coachWaitShot) coachRetryShot(); return; }
@@ -3018,7 +3026,7 @@ function litSpots(){
 /* 台灣地圖的縮放／平移：直接操作 viewBox，手勢跟 Zenly 一樣是雙指縮放＋拖曳 */
 /* ---------- 日記地圖：真實街道地圖 + 走過才揭開的迷霧 ---------- */
 let DMAP=null, DFOG=null, twFitDone=false;
-const FOG_R_M = 600;                       /* 每個 GPS 點揭開的半徑（公尺） */
+const FOG_R_M = 50;                        /* 只揭開走過的方圓 50 公尺，跟撿足跡同一個半徑 */
 let FOG_DEMO=null, FOG_N=0, fogTimer=null;
 const twGeoLL = () => FOG_DEMO ? FOG_DEMO.slice(0,FOG_N) : (S.geo||[]).map(p=>[p[1],p[0]]);
 /* 教學專用：沒有真實 GPS 記錄時，畫一條看起來像散步的路線 */
@@ -3027,9 +3035,9 @@ function fogDemoPath(){
   const out=[]; const N=54;
   for(let i=0;i<N;i++){
     const t=i/(N-1), a=t*Math.PI*2.4;
-    const rr=0.0042*(0.45+t*0.75);
+    const rr=0.0011*(0.45+t*0.75);
     out.push([ c[0]+Math.sin(a)*rr*0.72 + t*0.0016,
-               c[1]+Math.cos(a)*rr      - t*0.0011 ]);
+               c[1]+Math.cos(a)*rr      - t*0.0004 ]);
   }
   return out;
 }
@@ -3041,14 +3049,14 @@ function playFogDemo(){
   const base=(S.geo&&S.geo.length>6) ? S.geo.map(p=>[p[1],p[0]]) : fogDemoPath();
   FOG_DEMO=base; FOG_N=0; drawFog();
   DMAP.invalidateSize();
-  DMAP.flyToBounds(L.latLngBounds(base).pad(0.45),{maxZoom:15,duration:1.0});
+  DMAP.flyToBounds(L.latLngBounds(base).pad(0.35),{maxZoom:17,duration:1.0});
   setTimeout(()=>{
     let i=0;
     fogTimer=setInterval(()=>{
       FOG_N=Math.min(base.length,++i);
       drawFog();
       if(i>=base.length) clearInterval(fogTimer);
-    },55);
+    },170);                                    /* 一步一步走，不是一口氣炸開 */
   },900);
 }
 function stopFogDemo(){
@@ -3064,7 +3072,7 @@ function initTwMap(){
   DFOG=document.createElement("div"); DFOG.className="twfog"; box.appendChild(DFOG);
   DMAP.on("move zoom moveend zoomend resize",drawFog);
   const g=twGeoLL();
-  if(g.length) DMAP.fitBounds(L.latLngBounds(g).pad(0.8),{maxZoom:14});
+  if(g.length) DMAP.fitBounds(L.latLngBounds(g).pad(0.8),{maxZoom:16});
   setTimeout(()=>{ DMAP.invalidateSize(); drawFog(); },80);
 }
 function drawFog(){
@@ -3072,7 +3080,7 @@ function drawFog(){
   const sz=DMAP.getSize(), w=Math.round(sz.x), h=Math.round(sz.y);
   const c=DMAP.getCenter();
   const mPerPx=40075016.686*Math.cos(c.lat*Math.PI/180)/Math.pow(2,DMAP.getZoom()+8);
-  const r=Math.max(8,FOG_R_M/mPerPx);
+  const r=Math.max(3,FOG_R_M/mPerPx);
   let holes="";
   twGeoLL().forEach(ll=>{
     const p=DMAP.latLngToContainerPoint(ll);
@@ -3089,16 +3097,13 @@ function drawFog(){
 function twFitLit(){
   if(!DMAP) return;
   const g=twGeoLL();
-  if(g.length) DMAP.fitBounds(L.latLngBounds(g).pad(0.8),{maxZoom:14});
+  if(g.length) DMAP.fitBounds(L.latLngBounds(g).pad(0.8),{maxZoom:16});
   else DMAP.setView([23.7,121.0],7);
 }
 function renderTaiwan(){
   const box=$("twMap"); if(!box) return;
   initTwMap();
   const lit=litSpots();
-  $("twLit").textContent=lit.length;
-  $("twAll").textContent=TW_SPOTS.length;
-  $("twPct").textContent=Math.round(lit.length/TW_SPOTS.length*100)+"%";
   const lbl=$("twArea");
   if(lbl) lbl.textContent = lit.length ? lit[lit.length-1].n : "還沒走過";
   const hint=$("twHint");
@@ -3158,6 +3163,7 @@ async function startWalk(){
   }
   $("btnWalk").textContent="結束散步";
   $("btnWalk").classList.remove("pri");
+  renderLeave();
   startEncounters();
   setTimeout(()=>{ if(watchId!==null && S.picked.length===0) pickUpFootprint(); }, 8000);
 }
@@ -3175,6 +3181,7 @@ function stopWalk(){
   save();
   $("btnWalk").textContent="開始散步";
   $("btnWalk").classList.add("pri");
+  renderLeave();
   $("walkMsg").textContent="散步時會保持螢幕恆亮並累積里程，沿路經過的足跡卡會自動撿起，結束時一次結算。";
   renderAll();
   walkSummary(wKm,hr);            /* 一次結算：這趟走多遠、遇到誰 */
@@ -3657,6 +3664,8 @@ function dexRefreshSoon(){
 }
 preloadPhotos();
 renderAll(); drawMap(); renderEnc();
+/* 已經建過檔的人直接進足跡（主要玩法）；還沒建檔的才停在卡片分頁 */
+if(S.seen && S.dog && (S.dog.name||"").trim()) switchTab("trail");
 if(!S.seen){
   modal('<h3>歡迎來到 Radog｜狗達</h3>'
     +'<p>接下來會帶你走一次新手教學，大概一分鐘。</p>'
