@@ -200,6 +200,15 @@ label.fld input:focus,label.fld select:focus{outline:2px solid var(--orange);out
   display:flex;align-items:center;justify-content:center;}
 .slidecard .fp img{width:100%;height:100%;object-fit:cover;}
 .slidecard .fp svg{width:44px;height:44px;color:#C7B49A;}
+.slidecard .fb{font-size:10.5px;font-weight:700;color:#7A5A2E;margin-top:1px;}
+.slidecard .fp{flex:1;min-height:0;}
+.slidecard .fmeta{display:flex;gap:5px;margin-bottom:4px;}
+.slidecard .fmeta span{flex:1;background:rgba(255,255,255,.78);border-radius:6px;padding:3px 5px;
+  font-size:9px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.slidecard .fmeta i{display:block;font-style:normal;font-size:7.5px;opacity:.55;letter-spacing:.5px;}
+.slidecard .fintro{background:rgba(255,255,255,.78);border-radius:6px;padding:4px 6px;font-size:9px;
+  line-height:1.45;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.slidecard .fown{font-size:7.5px;opacity:.6;text-align:right;margin-bottom:3px;}
 .slidecard .fr{text-align:center;font-size:11px;font-weight:700;background:rgba(255,255,255,.72);border-radius:7px;padding:3px;}
 .newtag{position:absolute;top:8px;right:8px;z-index:4;background:#E5432E;color:#fff;font-size:9.5px;
   font-weight:700;padding:2px 8px;border-radius:99px;box-shadow:0 2px 6px rgba(0,0,0,.35);}
@@ -344,7 +353,8 @@ label.fld input:focus,label.fld select:focus{outline:2px solid var(--orange);out
 .slot.own.r3{border-color:var(--r3);} .slot.own.r4{border-color:var(--r4);}
 .slot.own .sno{color:#8A7A62;}
 .slot.own .sq{background:#fff;}
-.slot .sn{font-size:9.5px;font-weight:700;text-align:center;color:#3A2E20;line-height:1.2;}
+.slot .sdn{font-family:'Huninn',sans-serif;font-size:11px;text-align:center;color:#2A2119;line-height:1.15;}
+.slot .sn{font-size:8.5px;opacity:.72;font-weight:700;text-align:center;color:#3A2E20;line-height:1.2;}
 .slot .ss{display:flex;gap:1px;justify-content:center;}
 .slot .ss svg{width:7px;height:7px;color:var(--gold);}
 .slot.justgot::before{content:"";position:absolute;inset:0;z-index:5;border-radius:9px;
@@ -925,8 +935,8 @@ p.ddi{font-size:12.5px;color:var(--ink2);background:#FAF6EE;border-radius:11px;
       <button class="btn blk" id="btnFresh" style="margin-top:9px;">強制載入最新版</button>
       <button class="btn blk" id="btnReset" style="margin-top:9px;">清除所有資料重來</button>
       <p style="font-size:11.5px;color:var(--soft);margin-top:10px;line-height:1.7;">
-        版本 <b id="verTag" style="color:var(--orange);">v0.9.14</b><br>
-        <span id="verBuild" style="opacity:.75;">build 2026-08-25 12:40</span>
+        版本 <b id="verTag" style="color:var(--orange);">v0.9.16</b><br>
+        <span id="verBuild" style="opacity:.75;">build 2026-08-25 13:55</span>
       </p>
       <p style="font-size:11px;color:var(--soft);margin-top:8px;display:none;" id="uidTxt"></p>
     </div>
@@ -1346,7 +1356,7 @@ const R_PT = [1,3,5,10];
 const PACK_ODDS = [0.62,0.26,0.095,0.025];
 const STICKERS = ["★","✦","✧","❖","❋","✿","◆","●","▲","✚"];
 /* ---------- 版本（每次改版都要動這裡） ---------- */
-const APP_VER="v0.9.14", APP_BUILD="2026-08-25 12:40";
+const APP_VER="v0.9.16", APP_BUILD="2026-08-25 13:55";
 console.log("%c[Radog] "+APP_VER+" / build "+APP_BUILD,"color:#F5821F;font-weight:700");
 /* ---------- 公測版設定（改這裡就好） ---------- */
 const CFG = {
@@ -1602,6 +1612,60 @@ const DEMO_DOGS = {
    intro:"我走路很慢，因為要讓大家看清楚。斑馬線是我的伸展台。"}
 };
 
+/* ---------- 每個品種都要有一張「別人做的卡」 ----------
+   抽卡抽到的不該只是品種圖片，而是另一位飼主佈置好的卡：名字、技能、興趣、自我介紹。
+   DEMO_DOGS 有寫的用寫好的；其餘品種用 slug 做雜湊，穩定生出同一組人設
+   （同一個品種每次抽到都會是同一隻狗，圖鑑和卡包才不會對不上）。 */
+const P_NAME=["小福","麻吉","豆漿","阿寶","糰子","可可","布丁","雪球","阿虎","咪咪","饅頭","奶茶","八寶","小米","嘟嘟","元寶","起司","波波","西西","蛋黃","大福","黑輪","阿柴","栗子","泡泡","毛毛","果醬","拉拉","呼呼","阿吉","貝果","乖乖","金桔","小雨","糖糖","雲朵","阿肥","妹妹","弟弟","可樂","芬達","沙士","蘋果","芭樂","芒果","荔枝","龍眼","椰子","檸檬","柚子","橘子","香蕉","草莓","藍莓","桑葚","木瓜","甘蔗","蓮霧","枇杷","花捲","燒賣","湯圓","芝麻","紅豆","綠豆","花生","杏仁","核桃","腰果","開心","松子","栗栗","山楂","蜜餞","冬瓜","苦瓜","絲瓜","南瓜","地瓜","土豆","玉米","蘿蔔","洋蔥","高麗","青椒","番茄","秋葵","豌豆","竹筍","海苔","昆布","蝦餅","魚丸","貢丸","肉圓","米糕","油條","蔥餅","蛋餅","拿鐵","摩卡","卡布","濃縮","抹茶","焙茶","烏龍","普洱","蜜香","茉莉","玫瑰","桂花","薰衣","迷迭","羅勒","薄荷","肉桂","香草","咖哩","胡椒","球球","妞妞","圓圓","胖胖","壯壯","皮皮","果果","樂樂","多多","貝貝","米米","豆豆","團團","圓仔","平平","安安","康康","健健","旺旺","財財","福福","祿祿","壽壽","喜喜","順順","發發","金金","銀銀","珠珠","玉玉","鑽鑽","寶寶","貴貴","富富","滿滿","盈盈","豐豐","盛盛","昌昌","隆隆","黑皮","小白","小黑","小灰","小黃","小橘","小花","小斑","大黃","大白","阿黑","阿白","灰灰","白白","黑黑","黃黃","橘橘","花花","斑斑","條條","北鼻","布魯","查理","傑克","露西","貝拉","麥克","湯米","蘇菲","艾莉","奧利","班班","蘿拉","米羅","諾亞","里歐","艾瑪","露娜","可比","丹尼","雪莉","珊珊","娜娜","莉莉","琪琪","蒂蒂","妮妮","薇薇","芸芸","婷婷","小七","阿三","老四","五郎","六六","七七","八八","九九","十全","百福","千尋","萬里","天天","日日","月月","星星","雲雲","風風","雨雨","雷雷","電電","霧霧","霜霜","雪雪","冰冰","火火","山山","水水","木木","石頭","沙發","枕頭","棉被","拖鞋","襪子","手套","圍巾","帽子","鈕扣","拉鍊","口袋","鏡子","梳子","剪刀","鉛筆","橡皮","尺尺","膠帶","迴紋","圖釘","番薯","芋圓","粉圓","珍珠","椰果","布蕾","提拉","泡芙","可頌","貝殼","甜甜","波堤","菠蘿","蛋塔","麻糬","求肥","羊羹","銅鑼","鯛魚","大判","阿財","阿發","阿福","阿順","阿明","阿華","阿珍","阿美","阿玉","阿桃","阿蘭","阿英","阿鳳","阿雲","阿霞","阿香","阿秀","阿琴","阿梅","阿蓮","金城","武藏","宮本","佐助","小次","竹千","信長","秀吉","家康","政宗","幸村","龍馬","土方","沖田","近藤","齋藤","藤堂","服部","真田","上杉","初一","十五","立夏","白露","霜降","小暑","大寒","穀雨","芒種","驚蟄","清明","冬至","端午","中秋","除夕","元宵","七夕","重陽","臘八","龍抬","早安","午安","晚安","週一","週末","假期","黃昏","清晨","正午","深夜","破曉","黎明","傍晚","子夜","春分","秋分","夏至","小滿","寒露","處暑"];
+const P_SKILL=["坐下","握手","裝死","翻滾","擊掌","等待","撿球","趴下","轉圈圈","跳過手臂","把玩具收好","聽到名字會回頭","開冰箱","叼拖鞋","開門","接飛盤","站起來拜託","數到三才吃","自己上車","把球放回籃子","聽口令換腳","安靜","定點上廁所","不亂撿地上的東西","會自己按門","銜報紙","繞八字","穿越呼拉圈","倒退走","裝睡","舉手發問","把碗推到你面前","會等紅燈","聽到「等一下」會停","自己開紗門","會找遙控器","背東西不掉","站在滑板上","跳上跳下不吵","叫聲分兩種","會關抽屜","把拖鞋擺整齊","認得三種玩具的名字","會用鼻子開燈","上樓梯先等你","會自己回籠子","聞味道找人","坐著等三分鐘","會鞠躬","把垃圾叼給你"];
+const P_HOBBY=["曬太陽","追自己的尾巴","聞每一根電線桿","把玩具埋起來","趴在窗邊看路人","咬紙箱","跟腳踏車賽跑","躺在剛拖好的地板","偷吃菜","追泡泡","河堤散步","看電視裡的狗","滾草地","趴主人腳上睡","挖沙","踩水窪","追影子","聽腳步聲猜是誰","把抱枕咬出洞","跟鄰居的貓對看","坐在門口發呆","收集落葉","對著鏡子歪頭","追灑水器","把球滾下樓梯","聞新買的鞋","睡在洗衣籃","盯著烤箱","跟著吸塵器跑","等電梯門開","看窗外的鳥","把毯子拖來拖去","翻垃圾桶（未遂）","趴在行李箱上","追紅點","聞別人的便當","看主人打電動","把水碗打翻","在沙發上挖洞","等紅綠燈變綠"];
+const P_CITY=["台北 大稻埕","台北 河濱","台北 象山","台北 士林","台北 公館","新北 淡水","新北 三峽","新北 九份","新北 碧潭","桃園 中壢","桃園 大溪","新竹 十七公里","新竹 南寮","苗栗 南庄","台中 審計新村","台中 東海","台中 高美濕地","彰化 鹿港","南投 日月潭","南投 清境","雲林 斗六","嘉義 檜意森活村","嘉義 阿里山","台南 安平","台南 神農街","台南 四草","高雄 西子灣","高雄 駁二","高雄 旗津","屏東 恆春","屏東 墾丁","宜蘭 羅東","宜蘭 頭城","花蓮 七星潭","花蓮 瑞穗","台東 鐵花村","台東 池上","澎湖 馬公","金門 山后","基隆 和平島"];
+const P_INTRO_A=["每天最期待的就是聽到牽繩的聲音","我不挑食，但我挑人","走路很慢，因為每根電線桿都要簽名","下雨天不出門，這是我的原則","我會等，等到你回家為止","叫我我會回頭，但不一定會過去","認識新朋友需要三分鐘，之後就是一輩子","我睡覺的樣子很醜，請不要拍","散步的路線是我決定的，主人只是跟著","洗完澡那天我心情不好，別惹我","我最喜歡的位置是你旁邊那個","晚上的風比較好聞，所以我喜歡晚上散步","我不會游泳，但我很喜歡水","看到別的狗會很興奮，其實我只是想打招呼","我的耳朵比你想的還要好用","吃飯前一定要先繞桌子兩圈","我怕吸塵器，但我不承認","沙發右邊那一角是我的，不要坐","你出門的時候我都在門口等","我不喜歡拍照，除非有零食","全家人裡我最聽阿嬤的話","我可以一整天什麼都不做，只要你在","下樓梯我會先停一下，確認你有跟上","有人按門鈴我一定第一個到","我聞過的地方就是我的地方","我不咬人，但我會用鼻子推你","雷聲來的時候我會躲到床底下","我喜歡剛曬完的棉被的味道","公園那隻黃色的狗是我朋友","我知道哪一格抽屜放零食","坐車我一定要靠窗","我很會裝可憐，通常都有效","冬天我睡在暖氣旁邊，夏天睡在磁磚上","你講電話太久我會來搗亂","我認得回家的路，比導航還準","穿衣服那天我會整天不開心","我的名字叫了三次以上才是認真的","樓下便利商店的店員會給我摸","我不喜歡剪指甲，這是原則問題","吃完飯我會自己去躺好","有陌生人來我會先叫，然後裝熟","草地上一定要滾一次才甘願","我可以聽懂散步兩個字","我的玩具很多，但我只玩最舊那個","你難過的時候我會靠過去","早上六點我會準時叫你起床","我不追貓，貓追我","我喜歡被搔下巴，不喜歡被摸頭","回家第一件事是檢查每個房間","我會把球放到你腳邊，然後等","下雨過後的味道我最喜歡","我睡覺會打呼，全家都知道","我的尾巴比我的嘴巴誠實","有人吃東西我就會坐得特別端正","我不進浴室，除非你騙我","每天固定要巡一次陽台","我認得你的腳步聲","放假的時候我起得比平常晚","我會挑最軟的地方趴下","你摸別的狗我會吃醋","我怕高，但我不怕深","我的碗空了我會用鼻子推它","散步遇到熟人我會停下來等","我喜歡把頭伸出窗外","睡前一定要喝一次水","我知道週末和平日不一樣","我會把玩具藏起來然後忘記","你們吵架的時候我會躲起來","我只在自己家裡才敢大聲","剛剪完毛我會躲三天","我對郵差有意見，但沒有惡意"];
+const P_INTRO_B=["今天也是很棒的一天","以上都是真的","請多指教","這樣就夠了","不接受反駁","這是我的堅持","你懂的","大概吧","一直都是這樣","從小就這樣","沒有為什麼","習慣了","你可以試試看","下次見面再說","就這樣"];
+/* 公測用的假人設：337 個品種要 337 組不重複，所以用固定種子洗牌後一對一配發，
+   不是取餘數——取餘數會讓同一個名字被八個品種共用，一翻卡就穿幫。 */
+function seedShuffle(n,seed){
+  const a=Array.from({length:n},(_,i)=>i);
+  let x=seed>>>0;
+  for(let i=n-1;i>0;i--){
+    x^=x<<13; x>>>=0; x^=x>>17; x^=x<<5; x>>>=0;
+    const j=x%(i+1); const t=a[i]; a[i]=a[j]; a[j]=t;
+  }
+  return a;
+}
+let P_MAP=null;
+function personaMap(){
+  if(P_MAP) return P_MAP;
+  const n=BREEDS.length;
+  const nm=seedShuffle(P_NAME.length,20260825).slice(0,n);
+  const sk=seedShuffle(P_SKILL.length,7717);
+  const hb=seedShuffle(P_HOBBY.length,3391);
+  const ct=seedShuffle(P_CITY.length,5519);
+  const pairs=seedShuffle(P_INTRO_A.length*P_INTRO_B.length,911).slice(0,n);
+  P_MAP=Array.from({length:n},(_,i)=>({
+    name : P_NAME[nm[i%nm.length]],
+    skill: P_SKILL[sk[i%sk.length]],
+    hobby: P_HOBBY[hb[i%hb.length]],
+    city : P_CITY[ct[i%ct.length]],
+    intro: P_INTRO_A[Math.floor(pairs[i]/P_INTRO_B.length)]+"。"+P_INTRO_B[pairs[i]%P_INTRO_B.length]+"。"
+  }));
+  return P_MAP;
+}
+function pHash(str){ let h=2166136261; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619); } return Math.abs(h); }
+function PERSONA(slug, breedName){
+  const d=DEMO_DOGS[slug];
+  let i=BREEDS.findIndex(b=>b[1]===slug);
+  if(i<0) i=Math.abs(pHash(slug||breedName||"x"))%BREEDS.length;
+  const m=personaMap()[i];
+  return {
+    name : (d&&d.name)  || m.name,
+    city : (d&&d.city)  || m.city,
+    skill: (d&&d.skill) || m.skill,
+    hobby: (d&&d.hobby) || m.hobby,
+    intro: (d&&d.intro) || m.intro,
+    breed: breedName||""
+  };
+}
 /* ---------- 狀態 ---------- */
 const today = () => new Date().toISOString().slice(0,10);
 const ymd = d => d.toISOString().slice(0,10);
@@ -2149,9 +2213,15 @@ function showSlide(){
   const card=document.createElement("div");
   card.className="slidecard";
   card.style.background="linear-gradient(150deg,"+pal[0]+","+pal[1]+")";
+  const per=PERSONA(p.slug,p.name);
   card.innerHTML=(isNew?'<div class="newtag">NEW</div>':'')
     +'<div class="fno">NO.'+String(p.idx+1).padStart(3,"0")+'</div>'
-    +'<div class="fn">'+p.name+'</div><div class="fp" id="fp">'+svg("dog")+'</div>'
+    +'<div class="fn">'+per.name+'</div>'
+    +'<div class="fb">'+p.name+'</div>'
+    +'<div class="fp" id="fp">'+svg("dog")+'</div>'
+    +'<div class="fmeta"><span><i>技能</i>'+per.skill+'</span><span><i>興趣</i>'+per.hobby+'</span></div>'
+    +'<div class="fintro">'+per.intro+'</div>'
+    +'<div class="fown">'+per.city+'　飼主提供</div>'
     +'<div class="fr">'+R_NAME[p.rar]+'</div>'
     +'<div class="burst" id="burst"></div>';
   wrap.innerHTML=""; wrap.classList.toggle("rare2", p.rar===2); wrap.appendChild(card);
@@ -2231,9 +2301,9 @@ function recordColl(bi, card){
   save();
 }
 function collFromPull(p){
-  const dd=DEMO_DOGS[p.slug]||{};
-  return {name:dd.name||p.name,breed:p.name,slug:p.slug,note:dd.intro||"",
-    place:dd.city||"卡包",t:"",photo:PIC.get(p.slug)||"",src:"pack"};
+  const dd=PERSONA(p.slug,p.name);
+  return {name:dd.name,breed:p.name,slug:p.slug,note:dd.intro,skill:dd.skill,hobby:dd.hobby,
+    place:dd.city,t:"",photo:PIC.get(p.slug)||"",src:"pack"};
 }
 let dexFilter="all";
 /* 待揭曉：這些格子雖然已經 owned，但在動畫輪到它之前仍以剪影呈現，
@@ -2251,7 +2321,8 @@ function renderDex(){
     const ph=(S.dexPhotos[i]||[])[0];
     d.innerHTML='<div class="sno">No.'+String(i+1).padStart(3,"0")+'</div>'
       +'<div class="sq"></div>'
-      +(has?'<div class="sn">'+b[0]+'</div><div class="ss">'+svg("star","fill").repeat(b[2]+1)+'</div>':'');
+      +(has?'<div class="sdn">'+PERSONA(b[1],b[0]).name+'</div>'
+          +'<div class="sn">'+b[0]+'</div><div class="ss">'+svg("star","fill").repeat(b[2]+1)+'</div>':'');
     const sq=d.querySelector(".sq");
     if(has&&ph) sq.innerHTML='<img src="'+ph+'" alt="">';
     else {
@@ -2284,6 +2355,7 @@ function dexSlotHtml(i){
   return '<div class="slot own r'+(b[2]+1)+'">'
     +'<div class="sno">No.'+String(i+1).padStart(3,"0")+'</div>'
     +'<div class="sq">'+(ph?PIC.img(ph,b[1]):"")+'</div>'
+    +'<div class="sdn">'+PERSONA(b[1],b[0]).name+'</div>'
     +'<div class="sn">'+b[0]+'</div>'
     +'<div class="ss">'+svg("star","fill").repeat(b[2]+1)+'</div></div>';
 }
@@ -3389,18 +3461,22 @@ const STEPS=[
   btn:"完成建檔", after:()=>{ $("editBox").classList.add("hidden"); playDebut(); }, hold:true},
  {tab:"pack", target:"#btnFree", title:"卡包裡是別人的狗",
   text:"每天 5 張免費。抽到的不是圖鑑條目，是<b>另一位飼主親手做的那張卡</b>——名字、技能、照片都是他填的。"
-      +"<br><br>同樣地，<b>你的狗也會出現在別人的卡包裡</b>。",
-  btn:"開卡包", act:()=>{ if(S.packDate!==today()) openPack(false); else { toast("今天已開過，直接看圖鑑"); coachNext(); } }, hold:true},
- {tab:"dex", target:"#dexGrid", title:"抽到的都收進圖鑑", text:"100 種品種，還沒收集的會是模糊的剪影。集滿是長期目標。"},
+      +"<br><br>同樣地，<b>你的狗也會出現在別人的卡包裡</b>。"
+      +"<br><br><b style=\'color:#C05F0A;\'>按上面的「開啟今日卡包」。</b>",
+  buyOff:true, btn:"直接看圖鑑",
+  noBtn:()=>S.packDate!==today(),     /* 還沒開過＝一定要自己按；開過了才給備用按鈕 */
+  pre:()=>{ if(S.packDate===today()) toast("今天的卡包已經開過了"); }},
+ {tab:"dex", target:"#dexGrid", title:"抽到的都收進圖鑑", text:"每一格都是一位飼主的狗。還沒遇到的是模糊剪影，遇到了就會換成他們的卡。"},
  {tab:"trail", target:"#mapWrap", title:"整座城市都可以遇見狗", text:"你的足跡會留在地圖上，別人走過就能撿走。而你散步時也會自動撿到 50 公尺內的狗。"},
  {tab:"trail", target:"#btnWalk", title:"散步就是這個 App 的玩法",
-  text:"按下開始散步後，只要經過了別人留下的足跡，就會<b>自動撿起足跡卡</b>。<br><br>結束散步後，可以查看解鎖了哪些圖鑑、遇到了哪些足跡卡。",
-  btn:"懂了"},
+  text:"按下開始散步後，只要經過了別人留下的足跡，就會<b>自動撿起足跡卡</b>。<br><br>結束散步後，可以查看解鎖了哪些圖鑑、遇到了哪些足跡卡。"
+      +"<br><br><b style=\'color:#C05F0A;\'>現在按上面那顆「開始散步」。</b>",
+  wait:()=>isWalking(), noBtn:true},
  {tab:"trail", target:"#btnLeave", title:"現在，真的拍一張看看",
   text:"這是散步時最重要的動作：拍下牠現在的樣子，留一張足跡在原地。<br><br>這張照片會成為<b>這一張足跡卡</b>，也會成為今天日記的那一張。走過這裡的人撿到的，就是它。"
       +"<br><br><b style=\'color:#C05F0A;\'>請按上面那顆「拍照留下足跡」。</b>",
   shot:true, noBtn:true},
- {tab:"trail", target:"#myFpList", title:"這張足跡已經留在地圖上了",
+ {tab:"trail", target:"#myFpList", fabOff:true, title:"這張足跡已經留在地圖上了",
   text:"這張照片是你留下的足跡，也會是別人撿到的足跡卡。而這張照片也會進入到你的日記中。",
   btn:"接著呢？"},
  {tab:"trail", target:"#mapWrap", fabOff:true, title:"你也會撿到別人的足跡", demo:true, demoSlug:"australian/shepherd",
@@ -3471,7 +3547,8 @@ let coachActive=false, coachIdx=0;
 function coachStart(){ coachActive=true; coachIdx=0; coachShow(); }
 function coachNext(){ coachIdx++; if(coachIdx>=STEPS.length) return coachEnd(); coachShow(); }
 function coachEnd(fin){
-  coachActive=false; coachWaitShot=false; coachLock(false); stopFogDemo();
+  coachActive=false; coachWaitShot=false; coachLock(false); stopFogDemo(); stopCoachWait();
+  const _buy=$("btnBuy"); if(_buy) _buy.style.display="";
   $("coach").classList.remove("on"); $("coachPulse").style.display="none";
   S.seen=true; save(); renderLeave();
   if(fin) playFinale(); else toast("開始你的收藏吧");
@@ -3495,9 +3572,23 @@ function coachShow(){
   if(st.pre) st.pre();
   const fab=$("btnLeave");
   if(fab){ if(st.fabOff) fab.classList.add("off"); else { renderLeave(); if(st.shot) fab.classList.remove("off"); } }
+  const buy=$("btnBuy"); if(buy) buy.style.display = st.buyOff ? "none" : "";
+  startCoachWait(st);
   $("coach").classList.add("on");
   setTimeout(()=>placeCoach(st),120);
   if(st.flashIdx){ const i=st.flashIdx(); if(i>=0) setTimeout(()=>flashDex([i]),300); }
+}
+/* 有些步驟要使用者「真的去按那顆按鈕」才算數：
+   這裡輪詢條件，達成就自動進下一步，不需要教學自己準備一顆按鈕。 */
+let coachWaitT=null;
+function stopCoachWait(){ clearInterval(coachWaitT); coachWaitT=null; }
+function startCoachWait(st){
+  stopCoachWait();
+  if(!st.wait) return;
+  coachWaitT=setInterval(()=>{
+    if(!coachActive){ stopCoachWait(); return; }
+    if(st.wait()){ stopCoachWait(); setTimeout(()=>{ if(coachActive) coachNext(); },420); }
+  },260);
 }
 let coachSyncFn=null, coachScrollLocked=false;
 function coachLock(on){ coachScrollLocked=!!on; }
@@ -3579,7 +3670,8 @@ function placeCoach(st){
   box.innerHTML='<div class="step">STEP '+(coachIdx+1)+' / '+STEPS.length+'</div>'
     +'<h4>'+st.title+'</h4><p>'+st.text+'</p>'+demoHtml
     +'<div class="cacts"><button class="skip" id="cSkip">略過導覽</button>'
-    +(st.noBtn?"":'<button class="btn pri" id="cNext">'+(st.btn||"下一步")+'</button>')+'</div>';
+    +((typeof st.noBtn==="function"?st.noBtn():st.noBtn)?""
+       :'<button class="btn pri" id="cNext">'+(st.btn||"下一步")+'</button>')+'</div>';
   if(st.demo){
     const dfake={name:demoName,breed:demoBreed,note:demoNote,
       place:"河濱公園",t:"17:05",slug:st.demoSlug};
