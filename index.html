@@ -558,7 +558,7 @@ body.mopen .fpfab{opacity:0;pointer-events:none;}
 .serialbox .sbtx small{font-size:11.5px;color:#B7A88F;line-height:1.5;display:block;}
 
 /* 日記：台灣散步足跡地圖 */
-.twmap{position:relative;border-radius:14px;background:#E6E9DF;
+.twmap{position:relative;z-index:0;isolation:isolate;border-radius:14px;background:#E6E9DF;
   height:min(62vh,420px);overflow:hidden;box-shadow:inset 0 2px 10px rgba(0,0,0,.18);}
 .twfog{position:absolute;inset:0;z-index:450;pointer-events:none;}
 .twfog svg{width:100%;height:100%;display:block;}
@@ -794,11 +794,11 @@ p.ddi{font-size:12.5px;color:var(--ink2);background:#FAF6EE;border-radius:11px;
 
   <section class="panel" id="p-pack">
     <h2 class="sec">每日卡包</h2>
-    <p class="sub">公測版每天 5 張免費。卡片來自其他飼主建立的狗狗。</p>
+    <p class="sub">每天 5 張免費。你抽到的每一張，都是<b>另一位飼主為自己的狗做的卡</b>——牠的名字、技能、照片都是對方填的。而你的狗，也正在別人的卡包裡。</p>
     <div class="box" style="text-align:center;">
       <svg class="ic" viewBox="0 0 24 24" style="width:44px;height:44px;color:var(--orange);margin:0 auto;"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M3 12h18M12 8v13"/><path d="M12 8s-1-4-4-4a2.5 2.5 0 0 0 0 5h4zM12 8s1-4 4-4a2.5 2.5 0 0 1 0 5h-4z"/></svg>
       <h3 id="packState" style="margin-top:6px;justify-content:center;">今天的卡包還沒開</h3>
-      <p style="font-size:12.5px;color:var(--soft);">可開出 <span id="breedTotal">337</span> 種品種</p>
+      <p style="font-size:12.5px;color:var(--soft);">目前收錄 <span id="breedTotal">337</span> 種品種的狗狗</p>
       <button class="btn pri blk" id="btnFree" style="margin-top:12px;">開啟今日卡包</button>
       <button class="btn blk" id="btnBuy" style="margin-top:9px;">加購一包　NT$50</button>
     </div>
@@ -2266,7 +2266,7 @@ function renderDex(){
   });
   $("dexCount").textContent="已收集 "+(own-dexPending.size)+" / "+BREEDS.length;
 }
-let dexAnimTimers=[];
+let dexAnimTimers=[], dexFlying=false;
 /* 產生一張「跟目標格子長得一模一樣」的卡面，用來飛進去鑲滿那個槽 */
 function dexSlotHtml(i){
   const b=BREEDS[i];
@@ -2299,7 +2299,8 @@ function waitScrollSettle(sel,cb,maxMs){
 function flyIntoSlot(i,fast,onDone){
   const T = fast ? {pop:.42,hold:620,press:.55,land:1210,seat:900}
                  : {pop:.5, hold:900,press:.7, land:1660,seat:950};
-  const fin=()=>{ if(onDone) onDone(); };
+  dexFlying=true;
+  const fin=()=>{ dexFlying=false; if(onDone) onDone(); };
   const el=document.querySelector('.slot[data-i="'+i+'"]');
   if(!el){ dexPending.delete(i); renderDex(); fin(); return; }
   el.classList.add("socket");
@@ -2354,13 +2355,14 @@ function flashDex(idxs){
   const fast=idxs.length>4;
   let k=0;
   const runNext=()=>{
-    if(k>=idxs.length){ skip.classList.remove("on"); return; }
+    if(k>=idxs.length){ dexFlying=false; skip.classList.remove("on"); return; }
     const i=idxs[k++];
     flyIntoSlot(i,fast,()=>dexAnimTimers.push(setTimeout(runNext,260)));
   };
   runNext();
 }
 function skipDexAnim(){
+  dexFlying=false;
   dexAnimTimers.forEach(clearTimeout); dexAnimTimers=[];
   document.querySelectorAll(".dexfly").forEach(e=>e.remove());
   dexPending.clear();
@@ -2608,7 +2610,7 @@ function renderLeave(){
   const used=myFpToday(), left=Math.max(0,FP_PER_DAY-used);
   const n=$("fpLeft"); if(n) n.textContent=used;
   /* 足跡是「散步途中」留下的，沒開始散步就不該能留 */
-  const b=$("btnLeave"); if(b) b.classList.toggle("off", left<=0 || !isWalking());
+  const b=$("btnLeave"); if(b) b.classList.toggle("off", left<=0 || (!isWalking() && !coachActive));
   const box=$("myFpList"); if(!box) return;
   /* 今天留下的那幾張，用照片本身直接陳列在「今天留下的足跡（n/5）」下面 */
   const mine=S.myFp.filter(f=>f.date===today());
@@ -3373,7 +3375,9 @@ const STEPS=[
   need:()=>$("fIntro").value.trim().length>0, err:"先寫幾句自我介紹再繼續"},
  {tab:"card", target:"#fPhoto", title:"放一張牠的照片", text:"沒有也沒關係，之後隨時可以補上。",
   btn:"完成建檔", after:()=>{ $("editBox").classList.add("hidden"); playDebut(); }, hold:true},
- {tab:"pack", target:"#btnFree", title:"每天可以開一包卡包", text:"公測版每天 5 張免費。卡片來自其他飼主的狗。",
+ {tab:"pack", target:"#btnFree", title:"卡包裡是別人的狗",
+  text:"每天 5 張免費。抽到的不是圖鑑條目，是<b>另一位飼主親手做的那張卡</b>——名字、技能、照片都是他填的。"
+      +"<br><br>同樣地，<b>你的狗也會出現在別人的卡包裡</b>。",
   btn:"開卡包", act:()=>{ if(S.packDate!==today()) openPack(false); else { toast("今天已開過，直接看圖鑑"); coachNext(); } }, hold:true},
  {tab:"dex", target:"#dexGrid", title:"抽到的都收進圖鑑", text:"100 種品種，還沒收集的會是模糊的剪影。集滿是長期目標。"},
  {tab:"trail", target:"#mapWrap", title:"整座城市都可以遇見狗", text:"你的足跡會留在地圖上，別人走過就能撿走。而你散步時也會自動撿到 50 公尺內的狗。"},
@@ -3381,8 +3385,9 @@ const STEPS=[
   text:"按下開始散步後，只要經過了別人留下的足跡，就會<b>自動撿起足跡卡</b>。<br><br>結束散步後，可以查看解鎖了哪些圖鑑、遇到了哪些足跡卡。",
   btn:"懂了"},
  {tab:"trail", target:"#btnLeave", title:"現在，真的拍一張看看",
-  text:"這是散步時最重要的動作：拍下牠現在的樣子，留一張足跡在原地。<br><br>這張照片會成為<b>這一張足跡卡</b>，也會成為今天日記的那一張。走過這裡的人撿到的，就是它。",
-  btn:"拍照留下足跡", act:()=>coachTakeShot(), hold:true},
+  text:"這是散步時最重要的動作：拍下牠現在的樣子，留一張足跡在原地。<br><br>這張照片會成為<b>這一張足跡卡</b>，也會成為今天日記的那一張。走過這裡的人撿到的，就是它。"
+      +"<br><br><b style=\'color:#C05F0A;\'>請按上面那顆「拍照留下足跡」。</b>",
+  shot:true, noBtn:true},
  {tab:"trail", target:"#myFpList", title:"這張足跡已經留在地圖上了",
   text:"這張照片是你留下的足跡，也會是別人撿到的足跡卡。而這張照片也會進入到你的日記中。",
   btn:"接著呢？"},
@@ -3432,7 +3437,7 @@ function coachRetryShot(){
   if(!coachActive) return;
   coachWaitShot=false;
   $("coach").classList.add("on");
-  setTimeout(()=>placeCoach(STEPS[coachIdx]),120);
+  setTimeout(()=>placeCoach(STEPS[coachIdx]),120);   /* st.shot 會在裡面重新武裝 */
   toast("拍一張才能繼續喔");
 }
 window.addEventListener("focus",()=>{
@@ -3477,7 +3482,7 @@ function coachShow(){
   if(st.tab) switchTab(st.tab);
   if(st.pre) st.pre();
   const fab=$("btnLeave");
-  if(fab){ if(st.fabOff) fab.classList.add("off"); else renderLeave(); }
+  if(fab){ if(st.fabOff) fab.classList.add("off"); else { renderLeave(); if(st.shot) fab.classList.remove("off"); } }
   $("coach").classList.add("on");
   setTimeout(()=>placeCoach(st),120);
   if(st.flashIdx){ const i=st.flashIdx(); if(i>=0) setTimeout(()=>flashDex([i]),300); }
@@ -3516,6 +3521,7 @@ function placeCoach(st){
   const wantTop=Math.max(70, vh*0.16);       /* 把目標帶到畫面上方，下面留給說明框 */
   const bringIntoView=(force)=>{
     if(!el || isFixedEl(el)) return;
+    if(dexFlying) return;                    /* 圖鑑正在鑲卡，捲動由它主導 */
     for(let k=0;k<4;k++){
       const rc=el.getBoundingClientRect();
       if(!force && rc.top>=8 && rc.bottom<=vh-8) return;   /* 已經看得到就別亂捲 */
@@ -3561,7 +3567,7 @@ function placeCoach(st){
   box.innerHTML='<div class="step">STEP '+(coachIdx+1)+' / '+STEPS.length+'</div>'
     +'<h4>'+st.title+'</h4><p>'+st.text+'</p>'+demoHtml
     +'<div class="cacts"><button class="skip" id="cSkip">略過導覽</button>'
-    +'<button class="btn pri" id="cNext">'+(st.btn||"下一步")+'</button></div>';
+    +(st.noBtn?"":'<button class="btn pri" id="cNext">'+(st.btn||"下一步")+'</button>')+'</div>';
   if(st.demo){
     const dfake={name:demoName,breed:demoBreed,note:demoNote,
       place:"河濱公園",t:"17:05",slug:st.demoSlug};
@@ -3610,6 +3616,8 @@ function placeCoach(st){
   setTimeout(syncHole,200);
   setTimeout(syncHole,450);                  /* 示範照片載入後高度會變，重算一次 */
   $("cSkip").onclick=()=>coachEnd(false);
+  if(st.shot) coachWaitShot=true;             /* 等使用者自己按地圖上那顆拍照鈕 */
+  if(!$("cNext")) return;
   $("cNext").onclick=()=>{
     if(st.need && !st.need()){ toast(st.err||"再完成一下"); return; }
     if(st.onNext) st.onNext();
