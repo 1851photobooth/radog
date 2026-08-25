@@ -155,7 +155,8 @@ label.fld input:focus,label.fld select:focus{outline:2px solid var(--orange);out
 
 /* pack stage */
 .packstage{position:fixed;inset:0;z-index:90;background:radial-gradient(circle at 50% 40%,#3A2E20,#0E0A06 74%);
-  display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:20px;overflow:hidden;}
+  display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;
+  padding:16px 20px calc(20px + env(safe-area-inset-bottom));overflow-y:auto;}
 .packstage.on{display:flex;}
 .rays{position:absolute;inset:-30%;opacity:0;pointer-events:none;
   background:conic-gradient(from 0deg,transparent 0 6deg,rgba(255,220,150,.22) 6deg 12deg,transparent 12deg 18deg);
@@ -180,7 +181,7 @@ label.fld input:focus,label.fld select:focus{outline:2px solid var(--orange);out
 .confetti{position:absolute;width:7px;height:11px;border-radius:2px;pointer-events:none;animation:fall 1.1s ease-out forwards;}
 @keyframes fall{0%{opacity:1;transform:translate(0,0) rotate(0);}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(540deg);}}
 
-.slidewrap{position:relative;width:min(232px,64vw);aspect-ratio:63/88;z-index:3;overflow:visible;}
+.slidewrap{position:relative;width:min(222px,58vw);max-height:64vh;aspect-ratio:63/88;z-index:3;overflow:visible;flex:none;}
 .slidecard{position:absolute;inset:0;border-radius:14px;overflow:hidden;padding:11px;
   display:flex;flex-direction:column;color:#2A2119;box-shadow:0 12px 34px rgba(0,0,0,.55);
   animation:slidein .62s cubic-bezier(.22,.85,.3,1.15) both;}
@@ -238,7 +239,7 @@ label.fld input:focus,label.fld select:focus{outline:2px solid var(--orange);out
 .flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:95;}
 .flash.go{animation:flash .5s ease-out;}
 @keyframes flash{0%{opacity:.92;}100%{opacity:0;}}
-.stagehint{color:#E4D6C0;font-size:13px;z-index:3;}
+.stagehint{color:#E4D6C0;font-size:13px;z-index:3;flex:none;text-align:center;padding-bottom:2px;}
 .summary{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:320px;z-index:3;}
 .summary .mini{width:52px;aspect-ratio:63/88;border-radius:6px;overflow:hidden;position:relative;
   box-shadow:0 3px 10px rgba(0,0,0,.4);animation:rise .35s ease-out backwards;}
@@ -932,8 +933,8 @@ p.ddi{font-size:12.5px;color:var(--ink2);background:#FAF6EE;border-radius:11px;
       <button class="btn blk" id="btnFresh" style="margin-top:9px;">強制載入最新版</button>
       <button class="btn blk" id="btnReset" style="margin-top:9px;">清除所有資料重來</button>
       <p style="font-size:11.5px;color:var(--soft);margin-top:10px;line-height:1.7;">
-        版本 <b id="verTag" style="color:var(--orange);">v0.9.17</b><br>
-        <span id="verBuild" style="opacity:.75;">build 2026-08-25 14:30</span>
+        版本 <b id="verTag" style="color:var(--orange);">v0.9.18</b><br>
+        <span id="verBuild" style="opacity:.75;">build 2026-08-25 15:05</span>
       </p>
       <p style="font-size:11px;color:var(--soft);margin-top:8px;display:none;" id="uidTxt"></p>
     </div>
@@ -1353,7 +1354,7 @@ const R_PT = [1,3,5,10];
 const PACK_ODDS = [0.62,0.26,0.095,0.025];
 const STICKERS = ["★","✦","✧","❖","❋","✿","◆","●","▲","✚"];
 /* ---------- 版本（每次改版都要動這裡） ---------- */
-const APP_VER="v0.9.17", APP_BUILD="2026-08-25 14:30";
+const APP_VER="v0.9.18", APP_BUILD="2026-08-25 15:05";
 console.log("%c[Radog] "+APP_VER+" / build "+APP_BUILD,"color:#F5821F;font-weight:700");
 /* ---------- 公測版設定（改這裡就好） ---------- */
 const CFG = {
@@ -2461,31 +2462,36 @@ $("dexSkip").onclick=skipDexAnim;
 document.querySelectorAll(".dexbar button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll(".dexbar button").forEach(x=>x.classList.remove("on"));
   b.classList.add("on"); dexFilter=b.dataset.f; renderDex(); });
+/* 一張「別人的狗」的完整卡面：跟自己的主卡同一套結構 */
+function personaCardHTML(i, photo, widthStyle){
+  const b=BREEDS[i], per=PERSONA(b[1],b[0]);
+  const lv=1+(pHash(b[1])%38);
+  const ph=photo||"";
+  return '<div class="dcard t'+b[2]+'" style="'+(widthStyle||"")+'"><div class="inner">'
+    +'<div class="dc-top"><div>'
+      +'<div class="dc-name">'+per.name+'</div>'
+      +'<div class="dc-breed">'+b[0]+'　<span class="dc-rar r'+b[2]+'">'+R_NAME[b[2]]+'</span></div>'
+      +'<div class="dc-stars">'+svg("star","fill").repeat(b[2]+1)+'</div>'
+    +'</div><div class="dc-lv"><small>LV</small><b>'+lv+'</b></div></div>'
+    +'<div class="dc-photo">'+(ph?PIC.img(ph,b[1]):'<span class="ldbox loadingph"></span>')+'</div>'
+    +'<div class="dc-stats">'
+      +'<div><span>技能</span><b>'+per.skill+'</b></div>'
+      +'<div><span>興趣</span><b>'+per.hobby+'</b></div>'
+    +'</div>'
+    +'<div class="dc-intro">'+per.intro+'</div>'
+    +'<div class="dc-foot sno">NO.<b>'+String(i+1).padStart(7,"0")+'</b></div>'
+  +'</div></div>';
+}
 function openDex(i){
-  const b=BREEDS[i], list=S.dexPhotos[i]||[];
+  const b=BREEDS[i];
+  const ph=(S.dexPhotos[i]||[])[0] || (PIC.isFb(S.dexImg[i])?"":S.dexImg[i]) || PIC.get(b[1]) || "";
+  const W="width:min(268px,74vw);";
   let h='<h3>No.'+String(i+1).padStart(3,"0")+'　'+b[0]+'</h3>'
-    +'<p>'+R_NAME[b[2]]+'　'+"★".repeat(b[2]+1)+'</p>';
-  /* 每一種品種都有一張「別人的狗」的卡：九隻示範狗有完整檔案，
-     其餘品種先用品種名帶過，卡面照片一律走同一套 PIC 取圖。 */
-  const dd=DEMO_DOGS[b[1]] || {name:b[0],city:"某個城市的街上",skill:"—",hobby:"—",
-    intro:"還沒有飼主幫這個品種建立卡片。正式版這裡會是真實飼主做的那張卡。"};
-  {
-    const card={name:dd.name,breed:b[0],slug:b[1],note:dd.intro,place:dd.city,t:""};
-    const ph=(S.dexPhotos[i]||[])[0] || (PIC.isFb(S.dexImg[i])?"":S.dexImg[i]) || PIC.get(b[1]) || "";
-    h+='<div class="dexdog">'
-      +'<div class="dexdogcard" id="dexDogCard">'+fpCardInner(card,ph||null,"width:100%;")+'</div>'
-      +'<div class="dexdoginfo">'
-        +'<div class="ddn">'+dd.name+'</div>'
-        +'<div class="ddp">'+dd.city+'</div>'
-        +'<div class="ddr"><span>技能</span><b>'+dd.skill+'</b></div>'
-        +'<div class="ddr"><span>興趣</span><b>'+dd.hobby+'</b></div>'
-      +'</div></div>'
-      +'<p class="ddi">「'+dd.intro+'」</p>';
-    /* 卡面還沒有照片就非同步補上，不讓使用者看到空卡 */
-    if(!ph) setTimeout(()=>PIC.load(b[1],u=>{
-      const t=$("dexDogCard"); if(t&&u) t.innerHTML=fpCardInner(card,u,"width:100%;");
-    },0),0);
-  }
+    +'<div class="cardwrap" id="dexDogCard" style="padding:6px 0 10px;display:flex;justify-content:center;">'
+    +personaCardHTML(i,ph,W)+'</div>';
+  if(!ph) setTimeout(()=>PIC.load(b[1],u=>{
+    const t=$("dexDogCard"); if(t&&u) t.innerHTML=personaCardHTML(i,u,W);
+  },0),0);
   const coll=(S.coll&&S.coll[i])||[];
   h+='<div class="galhd"><b>收藏冊</b><span>'+coll.length+' / '+DEX_CAP+'</span></div>'
     +'<div class="galbar"><i style="width:'+(coll.length/DEX_CAP*100).toFixed(1)+'%"></i></div>'
@@ -3483,7 +3489,7 @@ const STEPS=[
       +"<br><br><b style=\'color:#C05F0A;\'>請按上面那顆「拍照留下足跡」。</b>",
   shot:true, noBtn:true},
  {tab:"trail", target:"#myFpList", fabOff:true, title:"這張足跡已經留在地圖上了",
-  text:"這張照片是你留下的足跡，也會是別人撿到的足跡卡。而這張照片也會進入到你的日記中。",
+  text:"這張照片是你留下的足跡，也會是別人撿到的足跡卡。而這張照片也會進入到你的日記中。<br><br><span style='color:#8A7A62;'>（今天留下的足跡都會排在這一列，一天最多 5 張。）</span>",
   btn:"接著呢？"},
  {tab:"trail", target:"#mapWrap", fabOff:true, title:"你也會撿到別人的足跡", demo:true, demoSlug:"australian/shepherd",
   demoName:"可可", demoBreed:"澳洲牧羊犬", demoNote:"在草地上追自己的尾巴",
@@ -3496,7 +3502,7 @@ const STEPS=[
     applyPinnedDexPics(); save();
     coachCorgiIdx=idx;
   }},
- {tab:"dex", target:"#dexGrid", fabOff:true, flashIdx:()=>coachCorgiIdx, pre:()=>{ dexFilter="all";
+ {tab:"dex", target:()=>'.slot[data-i="'+coachCorgiIdx+'"]', fabOff:true, flashIdx:()=>coachCorgiIdx, pre:()=>{ dexFilter="all";
    document.querySelectorAll(".dexbar button").forEach(x=>x.classList.toggle("on",x.dataset.f==="all"));
    renderDex(); },
   title:"撿到的足跡也會立刻收進圖鑑", text:"剛剛撿到的澳洲牧羊犬，已經自動收進圖鑑了。點開任一品種，還能看到你在那個品種底下收過的每一張卡。", btn:"看到了"},
@@ -3623,7 +3629,8 @@ window.addEventListener("scroll",()=>{
   if(coachActive && $("coach").classList.contains("on") && coachSyncFn) coachSyncFn();
 },true);
 function placeCoach(st){
-  const el=document.querySelector(st.target);
+  const sel=typeof st.target==="function"?st.target():st.target;
+  const el=sel?document.querySelector(sel):null;
   const vw=window.innerWidth, vh=window.innerHeight;
   const _cr=$("coachSvg").getBoundingClientRect();
   const svw=_cr.width||vw, svh=_cr.height||vh;
@@ -3639,7 +3646,8 @@ function placeCoach(st){
     if(dexFlying) return;                    /* 圖鑑正在鑲卡，捲動由它主導 */
     for(let k=0;k<4;k++){
       const rc=el.getBoundingClientRect();
-      if(!force && rc.top>=8 && rc.bottom<=vh-8) return;   /* 已經看得到就別亂捲 */
+      if(rc.height>vh-100){ if(rc.top>=0 && rc.top<vh*0.35) return; }   /* 比畫面還高的目標：頂端對好就好 */
+      else if(!force && rc.top>=8 && rc.bottom<=vh-8) return;
       const d=rc.top-wantTop;
       if(Math.abs(d)<2) return;
       window.scrollBy(0,d);                  /* 用相對位移＋重新量測，一定會收斂 */
