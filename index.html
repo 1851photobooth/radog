@@ -322,7 +322,12 @@ label.fld input:focus,label.fld select:focus{outline:2px solid var(--orange);out
 .coachbox .step{font-size:11px;font-weight:700;color:var(--orange);letter-spacing:1px;}
 .coachbox h4{font-family:'Huninn',sans-serif;font-size:16px;margin:2px 0 4px;}
 .coachbox p{font-size:13px;color:var(--ink2);}
-.coachbox .cacts{display:flex;gap:8px;justify-content:flex-end;margin-top:11px;align-items:center;}
+.coachbox .cacts{position:sticky;bottom:-15px;z-index:2;display:flex;gap:8px;justify-content:flex-end;
+  align-items:center;margin-top:11px;padding:11px 0 3px;background:#fff;
+  box-shadow:0 -10px 12px -8px rgba(0,0,0,.14);}
+/* 內容比框高時，上緣給一點漸層暗示「還有東西可以捲」 */
+.coachbox.scrolly::before{content:"";position:sticky;top:-15px;display:block;height:14px;margin:-15px -16px 0;
+  background:linear-gradient(#fff,rgba(255,255,255,0));z-index:2;}
 .coachbox .skip{font-size:12px;color:var(--soft);margin-right:auto;}
 .coachbox .btn{padding:8px 15px;font-size:13px;}
 .pulse{position:absolute;border:2.5px solid var(--orange);border-radius:14px;pointer-events:none;
@@ -933,8 +938,8 @@ p.ddi{font-size:12.5px;color:var(--ink2);background:#FAF6EE;border-radius:11px;
       <button class="btn blk" id="btnFresh" style="margin-top:9px;">強制載入最新版</button>
       <button class="btn blk" id="btnReset" style="margin-top:9px;">清除所有資料重來</button>
       <p style="font-size:11.5px;color:var(--soft);margin-top:10px;line-height:1.7;">
-        版本 <b id="verTag" style="color:var(--orange);">v0.9.18</b><br>
-        <span id="verBuild" style="opacity:.75;">build 2026-08-25 15:05</span>
+        版本 <b id="verTag" style="color:var(--orange);">v0.9.19</b><br>
+        <span id="verBuild" style="opacity:.75;">build 2026-08-25 15:40</span>
       </p>
       <p style="font-size:11px;color:var(--soft);margin-top:8px;display:none;" id="uidTxt"></p>
     </div>
@@ -1354,7 +1359,7 @@ const R_PT = [1,3,5,10];
 const PACK_ODDS = [0.62,0.26,0.095,0.025];
 const STICKERS = ["★","✦","✧","❖","❋","✿","◆","●","▲","✚"];
 /* ---------- 版本（每次改版都要動這裡） ---------- */
-const APP_VER="v0.9.18", APP_BUILD="2026-08-25 15:05";
+const APP_VER="v0.9.19", APP_BUILD="2026-08-25 15:40";
 console.log("%c[Radog] "+APP_VER+" / build "+APP_BUILD,"color:#F5821F;font-weight:700");
 /* ---------- 公測版設定（改這裡就好） ---------- */
 const CFG = {
@@ -3484,13 +3489,6 @@ const STEPS=[
   text:"按下開始散步後，只要經過了別人留下的足跡，就會<b>自動撿起足跡卡</b>。<br><br>結束散步後，可以查看解鎖了哪些圖鑑、遇到了哪些足跡卡。"
       +"<br><br><b style=\'color:#C05F0A;\'>現在按上面那顆「開始散步」。</b>",
   wait:()=>isWalking(), noBtn:true},
- {tab:"trail", target:"#btnLeave", title:"現在，真的拍一張看看",
-  text:"這是散步時最重要的動作：拍下牠現在的樣子，留一張足跡在原地。<br><br>這張照片會成為<b>這一張足跡卡</b>，也會成為今天日記的那一張。走過這裡的人撿到的，就是它。"
-      +"<br><br><b style=\'color:#C05F0A;\'>請按上面那顆「拍照留下足跡」。</b>",
-  shot:true, noBtn:true},
- {tab:"trail", target:"#myFpList", fabOff:true, title:"這張足跡已經留在地圖上了",
-  text:"這張照片是你留下的足跡，也會是別人撿到的足跡卡。而這張照片也會進入到你的日記中。<br><br><span style='color:#8A7A62;'>（今天留下的足跡都會排在這一列，一天最多 5 張。）</span>",
-  btn:"接著呢？"},
  {tab:"trail", target:"#mapWrap", fabOff:true, title:"你也會撿到別人的足跡", demo:true, demoSlug:"australian/shepherd",
   demoName:"可可", demoBreed:"澳洲牧羊犬", demoNote:"在草地上追自己的尾巴",
   text:"散步經過別人留下的地方，就會像這樣撿到一張足跡卡。這隻是<b style=\'color:#C05F0A;\'>少見</b>品種：",
@@ -3506,6 +3504,13 @@ const STEPS=[
    document.querySelectorAll(".dexbar button").forEach(x=>x.classList.toggle("on",x.dataset.f==="all"));
    renderDex(); },
   title:"撿到的足跡也會立刻收進圖鑑", text:"剛剛撿到的澳洲牧羊犬，已經自動收進圖鑑了。點開任一品種，還能看到你在那個品種底下收過的每一張卡。", btn:"看到了"},
+ {tab:"trail", target:"#btnLeave", title:"現在，真的拍一張看看",
+  text:"這是散步時最重要的動作：拍下牠現在的樣子，留一張足跡在原地。<br><br>這張照片會成為<b>這一張足跡卡</b>，也會成為今天日記的那一張。走過這裡的人撿到的，就是它。"
+      +"<br><br><b style=\'color:#C05F0A;\'>請按上面那顆「拍照留下足跡」。</b>",
+  shot:true, noBtn:true},
+ {tab:"trail", target:"#myFpList", fabOff:true, title:"這張足跡已經留在地圖上了",
+  text:"這張照片是你留下的足跡，也會是別人撿到的足跡卡。而這張照片也會進入到你的日記中。<br><br><span style='color:#8A7A62;'>（今天留下的足跡都會排在這一列，一天最多 5 張。）</span>",
+  btn:"接著呢？"},
  {tab:"diary", target:"#cal", pre:()=>renderDiary(),
   title:"每天一張，就是一本日記",
   text:"每天散步拍的照片都會自動存進當天的格子，記下牠每天的樣子，也記下你們一起去過的地方。",
@@ -3560,6 +3565,7 @@ function coachStart(){ coachActive=true; coachIdx=0; coachShow(); }
 function coachNext(){ coachIdx++; if(coachIdx>=STEPS.length) return coachEnd(); coachShow(); }
 function coachEnd(fin){
   coachActive=false; coachWaitShot=false; coachLock(false); stopFogDemo(); stopCoachWait();
+  clearInterval(coachHoleT);
   const _buy=$("btnBuy"); if(_buy) _buy.style.display="";
   const _fab=$("btnLeave"); if(_fab) _fab.style.display="";
   $("coach").classList.remove("on"); $("coachPulse").style.display="none";
@@ -3608,7 +3614,7 @@ function startCoachWait(st){
     if(st.wait()){ stopCoachWait(); setTimeout(()=>{ if(coachActive) coachNext(); },420); }
   },260);
 }
-let coachSyncFn=null, coachScrollLocked=false;
+let coachSyncFn=null, coachScrollLocked=false, coachHoleT=null;
 function coachLock(on){ coachScrollLocked=!!on; }
 function coachBlockScroll(e){
   if(!coachScrollLocked) return;
@@ -3630,7 +3636,10 @@ window.addEventListener("scroll",()=>{
 },true);
 function placeCoach(st){
   const sel=typeof st.target==="function"?st.target():st.target;
-  const el=sel?document.querySelector(sel):null;
+  /* 圖鑑鑲卡結束會整個重繪 dexGrid，抓住的 el 會變成孤兒節點（rect 全 0，洞就消失）。
+     所以每次校正都重新查一次選擇器，永遠指向畫面上真正存在的那一個。 */
+  const findEl=()=>sel?document.querySelector(sel):null;
+  let el=findEl();
   const vw=window.innerWidth, vh=window.innerHeight;
   const _cr=$("coachSvg").getBoundingClientRect();
   const svw=_cr.width||vw, svh=_cr.height||vh;
@@ -3719,12 +3728,14 @@ function placeCoach(st){
     const toTop = above > below;             /* 站空間大的那一側，絕不壓在洞上 */
     const room=Math.max(150,(toTop?above:below));
     box.style.maxHeight=room+"px";           /* 塞不下就框內自己捲，不要溢出去蓋住洞 */
+    box.classList.toggle("scrolly", box.scrollHeight>room+4);
     const bh=Math.min(box.offsetHeight,room), bw=box.offsetWidth;
     box.style.top=(toTop?Math.max(TOP,hy-14-bh):Math.min(BOT-bh,hy+hh+14))+"px";
     box.style.left=Math.max(12,(vw-bw)/2)+"px";
   };
   /* 捲動／版面還沒穩定時量到的位置會跑掉，量完再校正兩次 */
   const syncHole=()=>{
+    el=findEl();
     if(el){
       /* 版面稍後才長高（圖片載入、地圖初始化）時，目標可能被推出畫面，這裡自我修復 */
       coachLock(false); bringIntoView(false); coachLock(true);
@@ -3743,6 +3754,11 @@ function placeCoach(st){
     posBox();
   };
   coachSyncFn=syncHole;
+  clearInterval(coachHoleT);
+  coachHoleT=setInterval(()=>{
+    if(!coachActive || !$("coach").classList.contains("on")){ clearInterval(coachHoleT); return; }
+    syncHole();
+  },420);
   syncHole();
   requestAnimationFrame(syncHole);
   setTimeout(syncHole,200);
