@@ -200,15 +200,12 @@ label.fld input:focus,label.fld select:focus{outline:2px solid var(--orange);out
   display:flex;align-items:center;justify-content:center;}
 .slidecard .fp img{width:100%;height:100%;object-fit:cover;}
 .slidecard .fp svg{width:44px;height:44px;color:#C7B49A;}
-.slidecard .fb{font-size:10.5px;font-weight:700;color:#7A5A2E;margin-top:1px;}
-.slidecard .fp{flex:1;min-height:0;}
-.slidecard .fmeta{display:flex;gap:5px;margin-bottom:4px;}
-.slidecard .fmeta span{flex:1;background:rgba(255,255,255,.78);border-radius:6px;padding:3px 5px;
-  font-size:9px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.slidecard .fmeta i{display:block;font-style:normal;font-size:7.5px;opacity:.55;letter-spacing:.5px;}
-.slidecard .fintro{background:rgba(255,255,255,.78);border-radius:6px;padding:4px 6px;font-size:9px;
-  line-height:1.45;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.slidecard .fown{font-size:7.5px;opacity:.6;text-align:right;margin-bottom:3px;}
+.dc-rar{font-size:9.5px;padding:1px 6px;border-radius:99px;background:rgba(255,255,255,.66);letter-spacing:1px;}
+.dc-rar.r2{background:linear-gradient(90deg,#E3BC55,#FFF3CE,#E3BC55);color:#4A3818;}
+.dc-rar.r3{background:linear-gradient(90deg,#C9A7F5,#FFE8FB,#A7D8F5);color:#3A2A55;}
+.slidecard.dcard{width:auto;padding:12px;}
+.slidecard.dcard .dc-name{font-size:17px;}
+.slidecard.dcard .dc-intro{font-size:9px;-webkit-line-clamp:3;}
 .slidecard .fr{text-align:center;font-size:11px;font-weight:700;background:rgba(255,255,255,.72);border-radius:7px;padding:3px;}
 .newtag{position:absolute;top:8px;right:8px;z-index:4;background:#E5432E;color:#fff;font-size:9.5px;
   font-weight:700;padding:2px 8px;border-radius:99px;box-shadow:0 2px 6px rgba(0,0,0,.35);}
@@ -319,7 +316,7 @@ label.fld input:focus,label.fld select:focus{outline:2px solid var(--orange);out
 .coach.on{display:block;}
 .coach svg.cmask{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
 .coachbox{pointer-events:auto;}
-.coachbox{position:absolute;background:#fff;border-radius:15px;padding:14px 16px;
+.coachbox{position:absolute;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#fff;border-radius:15px;padding:14px 16px;
   width:min(300px,86vw);box-shadow:0 12px 34px rgba(0,0,0,.4);}
 .coachbox .step{font-size:11px;font-weight:700;color:var(--orange);letter-spacing:1px;}
 .coachbox h4{font-family:'Huninn',sans-serif;font-size:16px;margin:2px 0 4px;}
@@ -935,8 +932,8 @@ p.ddi{font-size:12.5px;color:var(--ink2);background:#FAF6EE;border-radius:11px;
       <button class="btn blk" id="btnFresh" style="margin-top:9px;">強制載入最新版</button>
       <button class="btn blk" id="btnReset" style="margin-top:9px;">清除所有資料重來</button>
       <p style="font-size:11.5px;color:var(--soft);margin-top:10px;line-height:1.7;">
-        版本 <b id="verTag" style="color:var(--orange);">v0.9.16</b><br>
-        <span id="verBuild" style="opacity:.75;">build 2026-08-25 13:55</span>
+        版本 <b id="verTag" style="color:var(--orange);">v0.9.17</b><br>
+        <span id="verBuild" style="opacity:.75;">build 2026-08-25 14:30</span>
       </p>
       <p style="font-size:11px;color:var(--soft);margin-top:8px;display:none;" id="uidTxt"></p>
     </div>
@@ -1356,7 +1353,7 @@ const R_PT = [1,3,5,10];
 const PACK_ODDS = [0.62,0.26,0.095,0.025];
 const STICKERS = ["★","✦","✧","❖","❋","✿","◆","●","▲","✚"];
 /* ---------- 版本（每次改版都要動這裡） ---------- */
-const APP_VER="v0.9.16", APP_BUILD="2026-08-25 13:55";
+const APP_VER="v0.9.17", APP_BUILD="2026-08-25 14:30";
 console.log("%c[Radog] "+APP_VER+" / build "+APP_BUILD,"color:#F5821F;font-weight:700");
 /* ---------- 公測版設定（改這裡就好） ---------- */
 const CFG = {
@@ -2002,7 +1999,7 @@ function renderCard(target){
   c.innerHTML =
     '<div class="inner"><div class="dc-top"><div>'
     + '<div class="dc-name">'+(d.name||"未命名")+'</div>'
-    + '<div class="dc-breed">'+d.breed+'</div>'
+    + '<div class="dc-breed">'+d.breed+(bi>=0?'　<span class="dc-rar r'+rar+'">'+R_NAME[rar]+'</span>':'')+'</div>'
     + (meta?'<div class="dc-meta">'+meta+'</div>':'')
     + '<div class="dc-stars">'+svg("star","fill").repeat(rar+1)+'</div></div>'
     + '<div class="dc-lv"><small>LV</small><b>'+lvOf(pt)+'</b></div></div>'
@@ -2214,16 +2211,24 @@ function showSlide(){
   card.className="slidecard";
   card.style.background="linear-gradient(150deg,"+pal[0]+","+pal[1]+")";
   const per=PERSONA(p.slug,p.name);
+  const lv=1+(pHash(p.slug)%38);
+  card.className="slidecard dcard t"+p.rar;
+  card.style.background="";
   card.innerHTML=(isNew?'<div class="newtag">NEW</div>':'')
-    +'<div class="fno">NO.'+String(p.idx+1).padStart(3,"0")+'</div>'
-    +'<div class="fn">'+per.name+'</div>'
-    +'<div class="fb">'+p.name+'</div>'
-    +'<div class="fp" id="fp">'+svg("dog")+'</div>'
-    +'<div class="fmeta"><span><i>技能</i>'+per.skill+'</span><span><i>興趣</i>'+per.hobby+'</span></div>'
-    +'<div class="fintro">'+per.intro+'</div>'
-    +'<div class="fown">'+per.city+'　飼主提供</div>'
-    +'<div class="fr">'+R_NAME[p.rar]+'</div>'
-    +'<div class="burst" id="burst"></div>';
+    +'<div class="inner">'
+    + '<div class="dc-top"><div>'
+    +   '<div class="dc-name">'+per.name+'</div>'
+    +   '<div class="dc-breed">'+p.name+'　<span class="dc-rar r'+p.rar+'">'+R_NAME[p.rar]+'</span></div>'
+    +   '<div class="dc-stars">'+svg("star","fill").repeat(p.rar+1)+'</div>'
+    + '</div><div class="dc-lv"><small>LV</small><b>'+lv+'</b></div></div>'
+    + '<div class="dc-photo" id="fp">'+svg("dog")+'</div>'
+    + '<div class="dc-stats">'
+    +   '<div><span>技能</span><b>'+per.skill+'</b></div>'
+    +   '<div><span>興趣</span><b>'+per.hobby+'</b></div>'
+    + '</div>'
+    + '<div class="dc-intro">'+per.intro+'</div>'
+    + '<div class="dc-foot sno">NO.<b>'+String(p.idx+1).padStart(7,"0")+'</b></div>'
+    + '</div><div class="burst" id="burst"></div>';
   wrap.innerHTML=""; wrap.classList.toggle("rare2", p.rar===2); wrap.appendChild(card);
   const pc=PIC.get(p.slug), t0=$("fp");
   if(pc){ if(t0) t0.innerHTML=PIC.img(pc,p.slug); }
@@ -2320,9 +2325,10 @@ function renderDex(){
     d.className="slot"+(has?" own r"+(b[2]+1):""); d.dataset.i=i;
     const ph=(S.dexPhotos[i]||[])[0];
     d.innerHTML='<div class="sno">No.'+String(i+1).padStart(3,"0")+'</div>'
+      +(has?'<div class="sn">'+b[0]+'</div>':'')
       +'<div class="sq"></div>'
       +(has?'<div class="sdn">'+PERSONA(b[1],b[0]).name+'</div>'
-          +'<div class="sn">'+b[0]+'</div><div class="ss">'+svg("star","fill").repeat(b[2]+1)+'</div>':'');
+          +'<div class="ss">'+svg("star","fill").repeat(b[2]+1)+'</div>':'');
     const sq=d.querySelector(".sq");
     if(has&&ph) sq.innerHTML='<img src="'+ph+'" alt="">';
     else {
@@ -2354,9 +2360,9 @@ function dexSlotHtml(i){
   if(!ph) ph=PIC.get(b[1]);
   return '<div class="slot own r'+(b[2]+1)+'">'
     +'<div class="sno">No.'+String(i+1).padStart(3,"0")+'</div>'
+    +'<div class="sn">'+b[0]+'</div>'
     +'<div class="sq">'+(ph?PIC.img(ph,b[1]):"")+'</div>'
     +'<div class="sdn">'+PERSONA(b[1],b[0]).name+'</div>'
-    +'<div class="sn">'+b[0]+'</div>'
     +'<div class="ss">'+svg("star","fill").repeat(b[2]+1)+'</div></div>';
 }
 /* 一格的完整「填入」流程：挖空槽 → 卡片放大現身 → 收縮鑲進去 → 撞擊回彈 */
@@ -3549,6 +3555,7 @@ function coachNext(){ coachIdx++; if(coachIdx>=STEPS.length) return coachEnd(); 
 function coachEnd(fin){
   coachActive=false; coachWaitShot=false; coachLock(false); stopFogDemo(); stopCoachWait();
   const _buy=$("btnBuy"); if(_buy) _buy.style.display="";
+  const _fab=$("btnLeave"); if(_fab) _fab.style.display="";
   $("coach").classList.remove("on"); $("coachPulse").style.display="none";
   S.seen=true; save(); renderLeave();
   if(fin) playFinale(); else toast("開始你的收藏吧");
@@ -3570,8 +3577,13 @@ function coachShow(){
   const st=STEPS[coachIdx];
   if(st.tab) switchTab(st.tab);
   if(st.pre) st.pre();
+  /* 原則：教學過程中同時只能有一顆橘色按鈕亮著。
+     除了「請你拍一張」那一步之外，地圖上的拍照鈕一律整顆收起來。 */
   const fab=$("btnLeave");
-  if(fab){ if(st.fabOff) fab.classList.add("off"); else { renderLeave(); if(st.shot) fab.classList.remove("off"); } }
+  if(fab){
+    if(st.shot){ fab.style.display=""; renderLeave(); fab.classList.remove("off"); }
+    else fab.style.display="none";
+  }
   const buy=$("btnBuy"); if(buy) buy.style.display = st.buyOff ? "none" : "";
   startCoachWait(st);
   $("coach").classList.add("on");
@@ -3693,11 +3705,14 @@ function placeCoach(st){
   /* 說明框只有兩個位置：貼畫面最上或貼畫面最下（避開 tab bar）。
      不再跟著目標浮動，眼睛不用每一步重新找它在哪。 */
   const posBox=()=>{
-    const bh=box.offsetHeight, bw=box.offsetWidth;
     const TOP=12, BOT=vh-78;
-    const holeMid=hy+hh/2;
-    const toTop = holeMid > vh*0.52;         /* 目標在下半 → 說明框貼上緣，反之貼下緣 */
-    box.style.top=(toTop?TOP:Math.max(TOP,BOT-bh))+"px";
+    const above=(hy-14)-TOP;                 /* 洞上面剩多少 */
+    const below=BOT-(hy+hh+14);              /* 洞下面剩多少 */
+    const toTop = above > below;             /* 站空間大的那一側，絕不壓在洞上 */
+    const room=Math.max(150,(toTop?above:below));
+    box.style.maxHeight=room+"px";           /* 塞不下就框內自己捲，不要溢出去蓋住洞 */
+    const bh=Math.min(box.offsetHeight,room), bw=box.offsetWidth;
+    box.style.top=(toTop?Math.max(TOP,hy-14-bh):Math.min(BOT-bh,hy+hh+14))+"px";
     box.style.left=Math.max(12,(vw-bw)/2)+"px";
   };
   /* 捲動／版面還沒穩定時量到的位置會跑掉，量完再校正兩次 */
@@ -3708,6 +3723,11 @@ function placeCoach(st){
       r=el.getBoundingClientRect();
     }
     hx=r.left-pad; hy=r.top-pad; hw=r.width+pad*2; hh=r.height+pad*2;
+    /* 目標很高（整個徽章列表、整張地圖）時只框上半段，
+       否則洞會吃掉整個畫面，說明框就沒地方站了 */
+    const HMAX=Math.round(vh*0.42);
+    if(hh>HMAX){ hh=HMAX; if(hy<12) hy=12; }
+    if(hy<8){ hh=Math.max(60,hh+hy-8); hy=8; }
     $("mhole").setAttribute("x",hx); $("mhole").setAttribute("y",hy);
     $("mhole").setAttribute("width",hw); $("mhole").setAttribute("height",hh);
     pl.style.display="block"; pl.style.left=hx+"px"; pl.style.top=hy+"px";
