@@ -1075,23 +1075,58 @@ async function bootstrapAuth(){
   }
   if(!supa){ showAuthStatus('無法載入登入服務'); return; }
   showAuthStatus('正在確認登入狀態…');
-  const {data:{session}} = await supa.auth.getSession();
-  if(session?.user){
-    try{ const profile=await ensureProfile(session.user); if(!profile) return; await syncDogFromCloud(); await assignSerial(); enterApp(profile); }
-    catch(e){ console.error(e); showAuthStatus('登入成功，但資料同步失敗：'+(e.message||e)); }
-  }else{
-    $('authGate').classList.remove('hidden'); showAuthStatus('請先使用 Google 登入');
+  // Keep database requests outside onAuthStateChange: Supabase recommends deferring
+  // asynchronous Supabase calls to avoid an auth callback deadlock.
+  let activeAuthTask = null;
+  let activeAuthUserId = null;
+  async function finishSignIn(user){
+    if(activeAuthTask && activeAuthUserId === user.id) return activeAuthTask;
+    activeAuthUserId = user.id;
+    const task = (async()=>{
+      try{
+        const profile = await ensureProfile(user);
+        if(!profile) return; // switchLocalUser is reloading the page
+        await syncDogFromCloud();
+        await assignSerial();
+        enterApp(profile);
+      }catch(e){
+        console.error('[Radog] Auth initialization failed', e);
+        showAuthStatus('登入成功，但資料同步失敗：'+(e.message||e));
+      }
+    })();
+    activeAuthTask = task;
+    try { await task; }
+    finally { if(activeAuthTask === task){ activeAuthTask=null; activeAuthUserId=null; } }
   }
-  supa.auth.onAuthStateChange(async (_event,newSession)=>{
+  supa.auth.onAuthStateChange((event,newSession)=>{
+    if(event === 'SIGNED_OUT'){
+      AUTH_USER=null; window.AUTH_USER=null;
+      $('authGate').classList.remove('hidden');
+      return;
+    }
     if(newSession?.user){
-      try{ const profile=await ensureProfile(newSession.user); if(!profile) return; await syncDogFromCloud(); await assignSerial(); enterApp(profile); }catch(e){ console.error(e); showAuthStatus('帳號建立失敗：'+(e.message||e)); }
-    }else{ $('authGate').classList.remove('hidden'); }
+      // The callback must return immediately; don't await profile/database calls here.
+      setTimeout(()=>{ void finishSignIn(newSession.user); },0);
+    }
   });
+  try{
+    const {data:{session},error} = await supa.auth.getSession();
+    if(error) throw error;
+    if(session?.user) await finishSignIn(session.user);
+    else{
+      $('authGate').classList.remove('hidden');
+      showAuthStatus('請先使用 Google 登入');
+    }
+  }catch(e){
+    console.error('[Radog] Session restore failed',e);
+    $('authGate').classList.remove('hidden');
+    showAuthStatus('無法確認登入狀態，請再試一次');
+  }
 }
 $('btnGoogleLogin').addEventListener('click', async()=>{
   if(!supa) return;
   $('btnGoogleLogin').disabled=true; showAuthStatus('正在前往 Google…');
-  const {error}=await supa.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.href}});
+  const {error}=await supa.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin + window.location.pathname}});
   if(error){ $('btnGoogleLogin').disabled=false; showAuthStatus('Google 登入尚未完成設定：'+error.message); }
 });
 window.saveDogToCloud = saveDogToCloud;
